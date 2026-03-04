@@ -1,0 +1,7 @@
+﻿services:
+  nexos.services.webapi:
+    image: nexos.services.webapi
+    build:
+      context: .
+      dockerfile: Nexos.Services.WebApi/Dockerfile
+
