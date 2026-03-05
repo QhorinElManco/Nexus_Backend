@@ -10,5 +10,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3"/>
     <PackageVersion Include="Microsoft.OpenApi" Version="2.6.1"/>
     <PackageVersion Include="Scalar.AspNetCore" Version="2.13.1"/>
+    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0"/>
+    <PackageVersion Include="Serilog.Settings.AppSettings" Version="3.0.0"/>
   </ItemGroup>
 </Project>
