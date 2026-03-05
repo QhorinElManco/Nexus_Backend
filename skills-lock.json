@@ -11,6 +11,11 @@
       "sourceType": "github",
       "computedHash": "2607fc60629b82b257136dd2a7a373f0a4466c0b49df7746d845d59313c99b21"
     },
+    "nuget-manager": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "9081279ef0313a18766c8f03422de9ef31765212d31b13a513e66f39427b4e38"
+    },
     "postgresql-table-design": {
       "source": "wshobson/agents",
       "sourceType": "github",
