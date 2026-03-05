@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
   </ItemGroup>
 
