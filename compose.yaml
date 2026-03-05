@@ -4,4 +4,39 @@
     build:
       context: .
       dockerfile: Nexos.Services.WebApi/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
+    networks:
+      - nexos-network
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: nexos-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - nexos-network
+
+networks:
+  nexos-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
 
