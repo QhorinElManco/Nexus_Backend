@@ -1,13 +1,7 @@
-using System.Globalization;
 using Serilog;
-using Serilog.Events;
 using Nexos.Services.WebApi.Extensions;
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-    .Enrich.FromLogContext()
-    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
-    .CreateBootstrapLogger();
+Log.Logger = SerilogExtensions.CreateBootstrapLogger().CreateBootstrapLogger();
 
 try
 {
@@ -15,11 +9,7 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddSerilog((services, lc) => lc
-        .ReadFrom.Configuration(builder.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture));
+    builder.Services.AddAppSerilog(builder.Configuration);
 
     // Add services to the container.
 

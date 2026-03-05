@@ -11,6 +11,10 @@
     <PackageVersion Include="Microsoft.OpenApi" Version="2.6.1"/>
     <PackageVersion Include="Scalar.AspNetCore" Version="2.13.1"/>
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0"/>
+    <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1"/>
+    <PackageVersion Include="Serilog.Enrichers.Thread" Version="4.0.0"/>
     <PackageVersion Include="Serilog.Settings.AppSettings" Version="3.0.0"/>
+    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0"/>
+    <PackageVersion Include="Serilog.Sinks.Postgresql.Alternative" Version="4.2.0"/>
   </ItemGroup>
 </Project>
