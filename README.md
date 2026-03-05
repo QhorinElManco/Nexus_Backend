@@ -22,11 +22,13 @@ A modern .NET backend API built with Clean Architecture and Domain-Driven Design
 
 ## Overview
 
-Nexos Backend is a enterprise-grade .NET application following Clean Architecture principles. The solution is designed to be maintainable, testable, and scalable, with clear separation of concerns across different layers.
+Nexos Backend is a enterprise-grade .NET application following Clean Architecture principles. The solution is designed
+to be maintainable, testable, and scalable, with clear separation of concerns across different layers.
 
 ## Architecture
 
-This project follows **Clean Architecture** (also known as Onion Architecture or Hexagonal Architecture) with the following layers:
+This project follows **Clean Architecture** (also known as Onion Architecture or Hexagonal Architecture) with the
+following layers:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -58,6 +60,7 @@ This project follows **Clean Architecture** (also known as Onion Architecture or
 ### Dependency Rule
 
 Dependencies flow **inward**:
+
 - **Presentation** depends on **Application** and **Infrastructure**
 - **Application** depends on **Domain**
 - **Infrastructure** depends on **Application** and **Domain**
@@ -76,7 +79,9 @@ Dependencies flow **inward**:
 
 ### NuGet Packages
 
-Packages are managed centrally using [Central Package Management](https://devblogs.microsoft.com/nuget/introducing-central-package-management/):
+Packages are managed centrally
+using [Central Package Management](https://devblogs.microsoft.com/nuget/introducing-central-package-management/):
+
 - `Microsoft.AspNetCore.OpenApi` - OpenAPI support
 
 ## Prerequisites
@@ -123,6 +128,7 @@ dotnet run
 ```
 
 The API will be available at:
+
 - **HTTP**: `http://localhost:5000`
 - **HTTPS**: `https://localhost:5001`
 
@@ -154,17 +160,17 @@ Nexos_backend/
 
 ### Layer Responsibilities
 
-| Layer | Responsibility | Dependencies |
-|-------|---------------|--------------|
-| **Domain** | Core business logic, entities, value objects | None |
-| **Application.Dto** | Data transfer objects, request/response models | Domain |
-| **Application.Interface** | Service interfaces, repository contracts | Domain |
-| **Application.UseCases** | Business use cases, application services | Domain, Application.Interface |
-| **Application.Validator** | Input validation rules | Application.Dto |
-| **Infrastructure** | External services, logging, caching | Application.Interface, Domain |
-| **Persistence** | Database access, repositories | Application.Interface, Domain |
-| **Services.WebApi** | API controllers, middleware, configuration | All layers |
-| **Transversal.Common** | Cross-cutting concerns, utilities | None |
+| Layer                     | Responsibility                                 | Dependencies                  |
+|---------------------------|------------------------------------------------|-------------------------------|
+| **Domain**                | Core business logic, entities, value objects   | None                          |
+| **Application.Dto**       | Data transfer objects, request/response models | Domain                        |
+| **Application.Interface** | Service interfaces, repository contracts       | Domain                        |
+| **Application.UseCases**  | Business use cases, application services       | Domain, Application.Interface |
+| **Application.Validator** | Input validation rules                         | Application.Dto               |
+| **Infrastructure**        | External services, logging, caching            | Application.Interface, Domain |
+| **Persistence**           | Database access, repositories                  | Application.Interface, Domain |
+| **Services.WebApi**       | API controllers, middleware, configuration     | All layers                    |
+| **Transversal.Common**    | Cross-cutting concerns, utilities              | None                          |
 
 ## Development Guidelines
 
@@ -215,7 +221,7 @@ services.AddScoped<IProductRepository, ProductRepository>();
 public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
-    
+
     public ProductService(IProductRepository repository)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
@@ -233,7 +239,7 @@ public async Task<Result<Order>> CreateOrderAsync(CreateOrderRequest request, Ca
     // Validation
     if (request.Quantity <= 0)
         return Result<Order>.Failure("Quantity must be greater than 0", "VALIDATION_ERROR");
-    
+
     // Business logic
     var order = await _repository.CreateAsync(request.ToEntity(), ct);
     return Result<Order>.Success(order);
@@ -243,7 +249,7 @@ public async Task<Result<Order>> CreateOrderAsync(CreateOrderRequest request, Ca
 app.MapPost("/orders", async (CreateOrderRequest request, IOrderService service, CancellationToken ct) =>
 {
     var result = await service.CreateOrderAsync(request, ct);
-    return result.IsSuccess 
+    return result.IsSuccess
         ? Results.Created($"/orders/{result.Value!.Id}", result.Value)
         : Results.BadRequest(new { error = result.Error, code = result.ErrorCode });
 });
@@ -305,6 +311,7 @@ dotnet run --urls "http://0.0.0.0:5000"
 ### Configuration Files
 
 Configuration is loaded from:
+
 1. `appsettings.json` - Base configuration
 2. `appsettings.Development.json` - Development overrides
 3. `appsettings.Production.json` - Production overrides
@@ -389,10 +396,10 @@ public async Task GetByIdAsync_WithValidId_ReturnsProduct()
     // Arrange
     var productId = "PROD-001";
     var expected = new Product { Id = productId, Name = "Test Product" };
-    
+
     // Act
     var result = await _service.GetByIdAsync(productId, CancellationToken.None);
-    
+
     // Assert
     Assert.NotNull(result);
     Assert.Equal(productId, result.Id);
@@ -414,6 +421,7 @@ The project uses `.editorconfig` for consistent code style across IDEs:
 ### Code Analysis
 
 The project enables:
+
 - **Roslyn analyzers**
 - **Code style enforcement in build**
 - **Treat warnings as errors**
@@ -466,7 +474,7 @@ The project enables:
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageVersion Include="Package.Name" Version="1.0.0" />
     </ItemGroup>
@@ -474,6 +482,7 @@ The project enables:
 ```
 
 To add a new package:
+
 1. Add version to `Directory.Packages.props`
 2. Remove version from `.csproj` files
 3. Reference package in `.csproj` without version
@@ -505,6 +514,7 @@ footer
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 Examples:
+
 ```
 feat(products): add product search endpoint
 fix(orders): resolve order creation validation
@@ -531,20 +541,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Restore packages | `dotnet restore` |
-| Build solution | `dotnet build` |
-| Run application | `dotnet run --project Nexos.Services.WebApi` |
-| Run tests | `dotnet test` |
-| Clean artifacts | `dotnet clean` |
-| Format code | `dotnet format` |
-| Docker build | `docker build -t nexos-backend .` |
-| Docker compose up | `docker-compose up -d` |
+| Task              | Command                                      |
+|-------------------|----------------------------------------------|
+| Restore packages  | `dotnet restore`                             |
+| Build solution    | `dotnet build`                               |
+| Run application   | `dotnet run --project Nexos.Services.WebApi` |
+| Run tests         | `dotnet test`                                |
+| Clean artifacts   | `dotnet clean`                               |
+| Format code       | `dotnet format`                              |
+| Docker build      | `docker build -t nexos-backend .`            |
+| Docker compose up | `docker-compose up -d`                       |
 
 ## Support
 
 For issues, questions, or suggestions:
+
 - Create an issue in the repository
 - Contact the development team
 
