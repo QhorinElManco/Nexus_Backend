@@ -1,223 +1,246 @@
 # Nexos Backend
 
-A modern .NET backend API built with Clean Architecture and Domain-Driven Design principles.
+Una API backend moderna .NET construida con Arquitectura Limpia y principios de Domain-Driven Design.
 
-## Table of Contents
+## Tabla de Contenidos
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Technology Stack](#technology-stack)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Development Guidelines](#development-guidelines)
-- [Building the Solution](#building-the-solution)
-- [Running the Application](#running-the-application)
-- [Docker Support](#docker-support)
-- [Testing](#testing)
-- [Code Style and Standards](#code-style-and-standards)
-- [Configuration](#configuration)
-- [Contributing](#contributing)
-- [License](#license)
+- [Resumen](#resumen)
+- [Arquitectura](#arquitectura)
+- [Tecnologías](#tecnologías)
+- [Requisitos Previos](#requisitos-previos)
+- [Comenzando](#comenzando)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Guía de Desarrollo](#guía-de-desarrollo)
+- [Construir la Solución](#construir-la-solución)
+- [Ejecutar la Aplicación](#ejecutar-la-aplicación)
+- [Soporte Docker](#soporte-docker)
+- [Pruebas](#pruebas)
+- [Estándares de Código](#estándares-de-código)
+- [Configuración](#configuración)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
 
-## Overview
+## Resumen
 
-Nexos Backend is a enterprise-grade .NET application following Clean Architecture principles. The solution is designed
-to be maintainable, testable, and scalable, with clear separation of concerns across different layers.
+Nexos Backend es una aplicación .NET de nivel empresarial siguiendo principios de Arquitectura Limpia. La solución está
+diseñada para ser mantenible, testeable y escalable, con una clara separación de responsabilidades entre las diferentes
+capas.
 
-## Architecture
+### Características Principales
 
-This project follows **Clean Architecture** (also known as Onion Architecture or Hexagonal Architecture) with the
-following layers:
+- **Arquitectura Limpia** (Clean Architecture)
+- **Entity Framework Core** con PostgreSQL
+- **Migraciones automáticas** (Schema-First)
+- **API REST** con OpenAPI/Swagger
+- **Health Checks** integrados
+- **Logging estructurado** con Serilog
+
+## Arquitectura
+
+Este proyecto sigue **Arquitectura Limpia** (también conocida como Arquitectura Onion o Hexagonal) con las siguientes
+capas:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Presentation Layer                        │
-│                  (Nexos.Services.WebApi)                     │
+│                    Capa de Presentación                     │
+│                  (Nexos.Services.WebApi)                    │
 ├─────────────────────────────────────────────────────────────┤
-│                   Application Layer                           │
-│  ┌──────────────────┐  ┌──────────────────┐                │
-│  │  Application.Dto  │  │Application.UseCases│               │
-│  └──────────────────┘  └──────────────────┘                │
-│  ┌──────────────────┐  ┌──────────────────┐                │
-│  │Application.       │  │Application.       │                │
-│  │Interface          │  │Validator          │                │
-│  └──────────────────┘  └──────────────────┘                │
+│                      Capa de Aplicación                     │
+│  ┌──────────────────┐  ┌────────────────────┐               │
+│  │  Application.Dto │  │Application.UseCases│               │
+│  └──────────────────┘  └────────────────────┘               │
+│  ┌──────────────────┐  ┌──────────────────┐                 │
+│  │Application.      │  │Application.      │                 │
+│  │Interface         │  │Validator         │                 │
+│  └──────────────────┘  └──────────────────┘                 │
 ├─────────────────────────────────────────────────────────────┤
-│                     Domain Layer                              │
-│                       (Nexos.Domain)                         │
+│                       Capa de Dominio                       │
+│                       (Nexos.Domain)                        │
 ├─────────────────────────────────────────────────────────────┤
-│                  Infrastructure Layer                         │
-│  ┌──────────────────┐  ┌──────────────────┐                │
-│  │Infrastructure    │  │Persistence       │                │
-│  └──────────────────┘  └──────────────────┘                │
+│                    Capa de Infraestructura                  │
+│  ┌──────────────────┐  ┌──────────────────┐                 │
+│  │Infrastructure    │  │Persistence       │                 │
+│  └──────────────────┘  └──────────────────┘                 │
 ├─────────────────────────────────────────────────────────────┤
-│                   Transversal Layer                           │
-│                  (Transversal.Common)                        │
+│                     Capa Transversal                        │
+│                  (Transversal.Common)                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Dependency Rule
+### Regla de Dependencias
 
-Dependencies flow **inward**:
+Las dependencias fluyen **hacia adentro**:
 
-- **Presentation** depends on **Application** and **Infrastructure**
-- **Application** depends on **Domain**
-- **Infrastructure** depends on **Application** and **Domain**
-- **Domain** has **no dependencies** (core business logic)
-- **Transversal.Common** provides cross-cutting concerns
+- **Presentacion** depende de **Aplicacion** e **Infraestructura**
+- **Aplicacion** depende de **Dominio**
+- **Infraestructura** depende de **Aplicacion** y **Dominio**
+- **Dominio** no tiene dependencias (lógica de negocio core)
+- **Transversal.Common** provee aspectos transversales
 
-## Technology Stack
+## Tecnologías
 
-- **.NET 10.0** - Application framework
-- **ASP.NET Core** - Web API framework
-- **C# 12** - Programming language with latest features
-- **Clean Architecture** - Architectural pattern
-- **Domain-Driven Design** - Design approach
-- **Docker** - Containerization
-- **OpenAPI/Swagger** - API documentation
+- **.NET 10.0** - Framework de aplicación
+- **ASP.NET Core** - Framework de API web
+- **C# 12** - Lenguaje de programación
+- **Entity Framework Core** - ORM con PostgreSQL
+- **Arquitectura Limpia** - Patrón arquitectónico
+- **Domain-Driven Design** - Enfoque de diseño
+- **Docker** - Contenedores
+- **OpenAPI/Swagger** - Documentación de API
 
-### NuGet Packages
+### Paquetes NuGet
 
-Packages are managed centrally
-using [Central Package Management](https://devblogs.microsoft.com/nuget/introducing-central-package-management/):
+Los paquetes se gestionan centralmente
+usando [Central Package Management](https://devblogs.microsoft.com/nuget/introducing-central-package-management/):
 
-- `Microsoft.AspNetCore.OpenApi` - OpenAPI support
+- `Microsoft.EntityFrameworkCore` - ORM Core
+- `Npgsql.EntityFrameworkCore.PostgreSQL` - Provider PostgreSQL
+- `Serilog.AspNetCore` - Logging estructurado
+- `Microsoft.AspNetCore.OpenApi` - Soporte OpenAPI
 
-## Prerequisites
+## Requisitos Previos
 
-- **.NET SDK 10.0** or later
-- **Docker** (optional, for containerized deployment)
-- **IDE**: Visual Studio 2022, JetBrains Rider, or VS Code with C# Dev Kit
+- **.NET SDK 10.0** o superior
+- **Docker** (opcional, para despliegue en contenedores)
+- **PostgreSQL** (para desarrollo local)
+- **IDE**: Visual Studio 2022, JetBrains Rider, o VS Code con C# Dev Kit
 
-### Verify Prerequisites
+### Verificar Requisitos
 
 ```bash
-# Check .NET SDK version
+# Verificar versión de .NET
 dotnet --version
 
-# Should output: 10.0.xxx or higher
+# Debería mostrar: 10.0.xxx o superior
 ```
 
-## Getting Started
+## Comenzando
 
-### 1. Clone the Repository
+### 1. Clonar el Repositorio
 
 ```bash
 git clone https://github.com/nexos/nexos-backend.git
 cd Nexos_backend
 ```
 
-### 2. Restore Dependencies
+### 2. Restaurar Dependencias
 
 ```bash
 dotnet restore
 ```
 
-### 3. Build the Solution
+### 3. Construir la Solución
 
 ```bash
 dotnet build
 ```
 
-### 4. Run the Application
+### 4. Configurar Base de Datos
+
+```bash
+# Aplicar migraciones
+dotnet dotnet-ef database update --project Nexos.Persistence --startup-project Nexos.Services.WebApi
+```
+
+### 5. Ejecutar la Aplicación
 
 ```bash
 cd Nexos.Services.WebApi
 dotnet run
 ```
 
-The API will be available at:
+La API estará disponible en:
 
 - **HTTP**: `http://localhost:5000`
 - **HTTPS**: `https://localhost:5001`
 
-## Project Structure
+## Estructura del Proyecto
 
 ```
 Nexos_backend/
-├── .agents/                          # AI agent skills and references
-├── .github/                          # GitHub workflows and templates
-├── .idea/                            # JetBrains Rider settings
-├── Nexos.Domain/                     # Domain layer (entities, value objects)
-├── Nexos.Application.Dto/            # Data Transfer Objects
-├── Nexos.Application.Interface/      # Application service interfaces
-├── Nexos.Application.UseCases/       # Use case implementations
-├── Nexos.Application.Validator/      # Input validators
-├── Nexos.Infrastructure/              # Infrastructure implementations
-├── Nexos.Persistence/                # Data persistence layer
-├── Nexos.Services.WebApi/            # API presentation layer
-├── Transversal.Common/               # Shared utilities and helpers
-├── Directory.Build.props             # Centralized build configuration
-├── Directory.Packages.props          # Central package management
-├── global.json                       # .NET SDK version pinning
-├── .editorconfig                     # Code style rules
-├── .gitignore                        # Git ignore patterns
-├── compose.yaml                      # Docker Compose configuration
-├── Nexos_backend.sln                 # Visual Studio solution file
-└── README.md                         # This file
+├── .agents/                          # Habilidades y referencias de agentes IA
+├── .github/                          # Flujos de trabajo de GitHub
+├── .idea/                           # Configuración de JetBrains Rider
+├── docs/                            # Documentación adicional
+├── Nexos.Domain/                    # Capa de dominio (entidades, value objects)
+├── Nexos.Application.Dto/           # Objetos de transferencia de datos
+├── Nexos.Application.Interface/     # Interfaces de servicios de aplicación
+├── Nexos.Application.UseCases/      # Implementaciones de casos de uso
+├── Nexos.Application.Validator/     # Validadores de entrada
+├── Nexos.Infrastructure/            # Implementaciones de infraestructura
+├── Nexos.Persistence/               # Capa de persistencia (EF Core, migraciones)
+├── Nexos.Services.WebApi/           # Capa de presentación de API
+├── Transversal.Common/              # Utilidades y helpers compartidos
+├── Directory.Build.props            # Configuración centralizada de build
+├── Directory.Packages.props         # Gestión central de paquetes
+├── global.json                      # Versión del SDK .NET
+├── .editorconfig                   # Reglas de estilo de código
+├── .gitignore                      # Patrones de exclusión de Git
+├── compose.yaml                     # Configuración de Docker Compose
+├── Nexos_backend.sln                # Archivo de solución
+└── README.md                       # Este archivo
 ```
 
-### Layer Responsibilities
+### Responsabilidades de las Capas
 
-| Layer                     | Responsibility                                 | Dependencies                  |
-|---------------------------|------------------------------------------------|-------------------------------|
-| **Domain**                | Core business logic, entities, value objects   | None                          |
-| **Application.Dto**       | Data transfer objects, request/response models | Domain                        |
-| **Application.Interface** | Service interfaces, repository contracts       | Domain                        |
-| **Application.UseCases**  | Business use cases, application services       | Domain, Application.Interface |
-| **Application.Validator** | Input validation rules                         | Application.Dto               |
-| **Infrastructure**        | External services, logging, caching            | Application.Interface, Domain |
-| **Persistence**           | Database access, repositories                  | Application.Interface, Domain |
-| **Services.WebApi**       | API controllers, middleware, configuration     | All layers                    |
-| **Transversal.Common**    | Cross-cutting concerns, utilities              | None                          |
+| Capa                      | Responsabilidad                                    | Dependencias                  |
+|---------------------------|----------------------------------------------------|-------------------------------|
+| **Domain**                | Lógica de negocio core, entidades                  | Ninguna                       |
+| **Application.Dto**       | Objetos DTO, modelos request/response              | Domain                        |
+| **Application.Interface** | Interfaces de servicios, contratos de repositorios | Domain                        |
+| **Application.UseCases**  | Casos de uso, servicios de aplicación              | Domain, Application.Interface |
+| **Application.Validator** | Reglas de validación de entrada                    | Application.Dto               |
+| **Infrastructure**        | Servicios externos, logging, caching               | Application.Interface, Domain |
+| **Persistence**           | Acceso a datos, repositorios                       | Application.Interface, Domain |
+| **Services.WebApi**       | Controladores API, middleware, configuración       | Todas las capas               |
+| **Transversal.Common**    | Aspectos transversales, utilidades                 | Ninguna                       |
 
-## Development Guidelines
+## Guía de Desarrollo
 
-### Code Style
+### Estilo de Código
 
-This project follows Microsoft's coding conventions with:
+Este proyecto sigue las convenciones de Microsoft con:
 
-- **File-scoped namespaces** (C# 10+)
-- **Nullable reference types** enabled
-- **Implicit usings** enabled
-- **Allman style** braces for classes/methods
-- **4-space indentation**
-- **LF line endings**
+- **Namespaces file-scoped** (C# 10+)
+- **Nullable reference types** habilitado
+- **Implicit usings** habilitado
+- **Llaves Allman** para clases/métodos
+- **4 espacios de indentación**
+- **Saltos de línea LF**
 
-See `.editorconfig` for complete style rules.
+Ver `.editorconfig` para reglas completas de estilo.
 
-### Naming Conventions
+### Convenciones de Nombrado
 
-- **Interfaces**: Start with `I` (e.g., `IProductService`)
-- **Classes**: PascalCase (e.g., `ProductService`)
-- **Methods**: PascalCase (e.g., `GetProductById`)
-- **Properties**: PascalCase (e.g., `ProductName`)
-- **Private fields**: `_camelCase` with underscore prefix
-- **Constants**: PascalCase or `UPPER_CASE`
-- **Parameters**: camelCase (e.g., `productId`)
+- **Interfaces**: Inician con `I` (ej., `IProductService`)
+- **Clases**: PascalCase (ej., `ProductService`)
+- **Métodos**: PascalCase (ej., `GetProductById`)
+- **Propiedades**: PascalCase (ej., `ProductName`)
+- **Campos privados**: `_camelCase` con prefijo underscore
+- **Constantes**: PascalCase o `UPPER_CASE`
+- **Parámetros**: camelCase (ej., `productId`)
 
-### Async/Await Pattern
+### Patrón Async/Await
 
 ```csharp
-// ✅ Correct: Async all the way with CancellationToken
+// ✅ Correcto: Async todo el camino con CancellationToken
 public async Task<Product?> GetByIdAsync(string id, CancellationToken ct = default)
 {
     return await _repository.GetByIdAsync(id, ct);
 }
 
-// ❌ Wrong: Blocking on async
-var result = GetByIdAsync(id).Result; // NEVER do this
+// ❌ Incorrecto: Bloquear en async
+var result = GetByIdAsync(id).Result; // NUNCA hacer esto
 ```
 
-### Dependency Injection
+### Inyección de Dependencias
 
 ```csharp
-// Registration in Program.cs or extension method
+// Registro en Program.cs o método extensión
 services.AddScoped<IProductService, ProductService>();
 services.AddScoped<IProductRepository, ProductRepository>();
 
-// Constructor injection
+// Inyección en constructor
 public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
@@ -229,165 +252,156 @@ public class ProductService : IProductService
 }
 ```
 
-### Result Pattern (Recommended)
+### Patrón Result (Recomendado)
 
-Use Result pattern instead of throwing exceptions for business logic flow control:
+Usar patrón Result en lugar de lanzar excepciones para control de flujo:
 
 ```csharp
 public async Task<Result<Order>> CreateOrderAsync(CreateOrderRequest request, CancellationToken ct)
 {
-    // Validation
+    // Validación
     if (request.Quantity <= 0)
-        return Result<Order>.Failure("Quantity must be greater than 0", "VALIDATION_ERROR");
+        return Result<Order>.Failure("La cantidad debe ser mayor a 0", "VALIDATION_ERROR");
 
-    // Business logic
+    // Lógica de negocio
     var order = await _repository.CreateAsync(request.ToEntity(), ct);
     return Result<Order>.Success(order);
 }
-
-// Usage in endpoint
-app.MapPost("/orders", async (CreateOrderRequest request, IOrderService service, CancellationToken ct) =>
-{
-    var result = await service.CreateOrderAsync(request, ct);
-    return result.IsSuccess
-        ? Results.Created($"/orders/{result.Value!.Id}", result.Value)
-        : Results.BadRequest(new { error = result.Error, code = result.ErrorCode });
-});
 ```
 
-## Building the Solution
+## Construir la Solución
 
-### Build All Projects
+### Construir Todos los Proyectos
 
 ```bash
-# Debug build
+# Build debug
 dotnet build
 
-# Release build
+# Build release
 dotnet build -c Release
 ```
 
-### Build Specific Project
+### Construir Proyecto Específico
 
 ```bash
 dotnet build Nexos.Domain/Nexos.Domain.csproj
 ```
 
-### Clean Build Artifacts
+### Limpiar Artefactos de Build
 
 ```bash
 dotnet clean
 
-# Or remove obj/bin folders manually
+# O remover carpetas obj/bin manualmente
 find . -type d -name "bin" -o -name "obj" | xargs rm -rf
 ```
 
-## Running the Application
+## Ejecutar la Aplicación
 
-### Development Mode
+### Modo Desarrollo
 
 ```bash
 cd Nexos.Services.WebApi
 dotnet run
 ```
 
-### With Hot Reload
+### Con Hot Reload
 
 ```bash
 cd Nexos.Services.WebApi
 dotnet watch run
 ```
 
-### With Environment Variables
+### Con Variables de Entorno
 
 ```bash
-# Set environment
+# Establecer entorno
 export ASPNETCORE_ENVIRONMENT=Development
 
-# Run with specific URL
+# Ejecutar con URL específica
 dotnet run --urls "http://0.0.0.0:5000"
 ```
 
-### Configuration Files
+### Archivos de Configuración
 
-Configuration is loaded from:
+La configuración se carga desde:
 
-1. `appsettings.json` - Base configuration
-2. `appsettings.Development.json` - Development overrides
-3. `appsettings.Production.json` - Production overrides
-4. Environment variables
-5. Command-line arguments
+1. `appsettings.json` - Configuración base
+2. `appsettings.Development.json` - Sobrescrituras de desarrollo
+3. `appsettings.Production.json` - Sobrescrituras de producción
+4. Variables de entorno
+5. Argumentos de línea de comandos
 
-## Docker Support
+## Soporte Docker
 
-### Build Docker Image
+### Construir Imagen Docker
 
 ```bash
 docker build -t nexos-backend:latest -f Nexos.Services.WebApi/Dockerfile .
 ```
 
-### Run with Docker Compose
+### Ejecutar con Docker Compose
 
 ```bash
 docker-compose up -d
 ```
 
-### Docker Commands
+### Comandos Docker
 
 ```bash
-# Build
+# Construir
 docker-compose build
 
-# Run in background
+# Ejecutar en background
 docker-compose up -d
 
-# View logs
+# Ver logs
 docker-compose logs -f
 
-# Stop
+# Detener
 docker-compose down
 
-# Stop and remove volumes
+# Detener y remover volúmenes
 docker-compose down -v
 ```
 
-## Testing
+## Pruebas
 
-### Run All Tests
+### Ejecutar Todas las Pruebas
 
 ```bash
 dotnet test
 ```
 
-### Run Tests with Coverage
+### Ejecutar Pruebas con Cobertura
 
 ```bash
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-### Run Specific Test Project
+### Ejecutar Proyecto de Pruebas Específico
 
 ```bash
 dotnet test Tests/Nexos.Domain.Tests
 ```
 
-### Test Structure (When Tests Are Added)
+### Estructura de Pruebas (Cuando Se Agreguen)
 
 ```
 Tests/
-├── Nexos.Domain.Tests/           # Unit tests for domain
-├── Nexos.Application.Tests/      # Unit tests for application layer
-├── Nexos.Infrastructure.Tests/   # Integration tests for infrastructure
-└── Nexos.Api.Tests/              # API integration tests
+├── Nexos.Domain.Tests/           # Pruebas unitarias de dominio
+├── Nexos.Application.Tests/      # Pruebas unitarias de aplicación
+├── Nexos.Infrastructure.Tests/  # Pruebas de integración de infraestructura
+└── Nexos.Api.Tests/             # Pruebas de integración de API
 ```
 
-### Testing Best Practices
+### Mejores Prácticas de Pruebas
 
-1. **Unit Tests**: Test business logic in isolation
-2. **Integration Tests**: Test system integration points
-3. **Use xUnit** with FluentAssertions
-4. **Achieve 80%+ code coverage**
-5. **Follow AAA pattern**: Arrange, Act, Assert
+1. **Pruebas Unitarias**: Probar lógica de negocio en aislamiento
+2. **Pruebas de Integración**: Probar puntos de integración del sistema
+3. **Usar xUnit** con FluentAssertions
+4. **Alcanzar 80%+ de cobertura de código**
+5. **Seguir patrón AAA**: Arrange, Act, Assert
 
 ```csharp
 [Fact]
@@ -395,7 +409,7 @@ public async Task GetByIdAsync_WithValidId_ReturnsProduct()
 {
     // Arrange
     var productId = "PROD-001";
-    var expected = new Product { Id = productId, Name = "Test Product" };
+    var expected = new Product { Id = productId, Name = "Producto de Prueba" };
 
     // Act
     var result = await _service.GetByIdAsync(productId, CancellationToken.None);
@@ -406,54 +420,35 @@ public async Task GetByIdAsync_WithValidId_ReturnsProduct()
 }
 ```
 
-## Code Style and Standards
+## Estándares de Código
 
 ### EditorConfig
 
-The project uses `.editorconfig` for consistent code style across IDEs:
+El proyecto usa `.editorconfig` para estilo de código consistente:
 
-- **Indentation**: 4 spaces
-- **Line endings**: LF (Unix-style)
-- **Encoding**: UTF-8
-- **Braces**: Allman style (new line for classes, methods)
-- **Max line length**: 120 characters
+- **Indentación**: 4 espacios
+- **Saltos de línea**: LF (estilo Unix)
+- **Codificación**: UTF-8
+- **Llaves**: Estilo Allman (nueva línea para clases, métodos)
+- **Línea máxima**: 120 caracteres
 
-### Code Analysis
+### Análisis de Código
 
-The project enables:
+El proyecto habilita:
 
-- **Roslyn analyzers**
-- **Code style enforcement in build**
-- **Treat warnings as errors**
+- **Analizadores Roslyn**
+- **Aplicación de estilo de código en build**
+- **Tratar advertencias como errores**
 - **Nullable reference types**
 
-### IDE Settings
+## Configuración
 
-#### Visual Studio 2022
+### Configuración Centralizada de Build
 
-1. Enable "Enforce code style in build"
-2. Enable "Run Code Analysis on build"
-3. Enable "Generate .editorconfig"
-
-#### JetBrains Rider
-
-1. Enable "EditorConfig support"
-2. Enable "ReSharper code style"
-3. Enable "Solution-wide analysis"
-
-#### VS Code
-
-1. Install "C# Dev Kit" extension
-2. Enable "EditorConfig" extension
-3. Configure omnisharp analysis settings
-
-## Configuration
-
-### Centralized Build Configuration
-
-`Directory.Build.props` centralizes build settings:
+`Directory.Build.props` centraliza configuración de build:
 
 ```xml
+
 <Project>
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -465,100 +460,120 @@ The project enables:
 </Project>
 ```
 
-### Central Package Management
+### Gestión Central de Paquetes
 
-`Directory.Packages.props` manages NuGet package versions:
+`Directory.Packages.props` gestiona versiones de paquetes NuGet:
 
 ```xml
+
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageVersion Include="Package.Name" Version="1.0.0" />
+        <PackageVersion Include="Package.Name" Version="1.0.0"/>
     </ItemGroup>
 </Project>
 ```
 
-To add a new package:
+Para agregar un nuevo paquete:
 
-1. Add version to `Directory.Packages.props`
-2. Remove version from `.csproj` files
-3. Reference package in `.csproj` without version
+1. Agregar versión a `Directory.Packages.props`
+2. Remover versión de archivos `.csproj`
+3. Referenciar paquete en `.csproj` sin versión
 
-## Contributing
+### Base de Datos
 
-### Branch Naming Convention
+La configuración de Entity Framework está documentada
+en [docs/DATABASE_CONFIGURATION.md](docs/DATABASE_CONFIGURATION.md).
 
-```
-feature/description    # New features
-bugfix/description      # Bug fixes
-hotfix/description      # Production hotfixes
-refactor/description    # Code refactoring
-docs/description        # Documentation updates
-```
+#### Migraciones
 
-### Commit Message Format
+```bash
+# Crear nueva migración
+dotnet dotnet-ef migrations add NombreMigracion \
+    --project Nexos.Persistence \
+    --startup-project Nexos.Services.WebApi
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
+# Aplicar migraciones
+dotnet dotnet-ef database update \
+    --project Nexos.Persistence \
+    --startup-project Nexos.Services.WebApi
 
-```
-type(scope): subject
-
-body
-
-footer
-```
-
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-
-Examples:
-
-```
-feat(products): add product search endpoint
-fix(orders): resolve order creation validation
-docs(readme): update installation instructions
-refactor(domain): extract value objects to separate files
+# Generar script SQL
+dotnet dotnet-ef migrations script \
+    --project Nexos.Persistence \
+    --startup-project Nexos.Services.WebApi \
+    -o migration.sql
 ```
 
-### Pull Request Process
+## Contribuir
 
-1. Create feature branch from `main`
-2. Implement changes following code style
-3. Add/update tests
-4. Ensure all tests pass
-5. Update documentation
-6. Create pull request with description
-7. Request code review
-8. Address review comments
+### Convención de Nombrado de Ramas
 
-## License
+```
+feature/descripcion    # Nuevas características
+bugfix/descripcion     # Correcciones de bugs
+hotfix/descripcion     # Hotfixes de producción
+refactor/descripcion   # Refactorización de código
+docs/descripcion       # Actualizaciones de documentación
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Formato de Mensajes de Commit
+
+Seguir [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+tipo(alcance): asunto
+
+cuerpo
+
+pie
+```
+
+Tipos: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+
+Ejemplos:
+
+```
+feat(productos): agregar endpoint de búsqueda de productos
+fix(pedidos): resolver validación de creación de pedidos
+docs(readme): actualizar instrucciones de instalación
+refactor(dominio): extraer value objects a archivos separados
+```
+
+### Proceso de Pull Request
+
+1. Crear rama de característica desde `main`
+2. Implementar cambios siguiendo estilo de código
+3. Agregar/actualizar pruebas
+4. Asegurar que todas las pruebas pasen
+5. Actualizar documentación
+6. Crear pull request con descripción
+7. Solicitar code review
+8. Atender comentarios del review
+
+## Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
 
 ---
 
-## Quick Reference
+## Referencia Rápida
 
-| Task              | Command                                      |
-|-------------------|----------------------------------------------|
-| Restore packages  | `dotnet restore`                             |
-| Build solution    | `dotnet build`                               |
-| Run application   | `dotnet run --project Nexos.Services.WebApi` |
-| Run tests         | `dotnet test`                                |
-| Clean artifacts   | `dotnet clean`                               |
-| Format code       | `dotnet format`                              |
-| Docker build      | `docker build -t nexos-backend .`            |
-| Docker compose up | `docker-compose up -d`                       |
-
-## Support
-
-For issues, questions, or suggestions:
-
-- Create an issue in the repository
-- Contact the development team
+| Tarea               | Comando                                      |
+|---------------------|----------------------------------------------|
+| Restaurar paquetes  | `dotnet restore`                             |
+| Construir solución  | `dotnet build`                               |
+| Ejecutar aplicación | `dotnet run --project Nexos.Services.WebApi` |
+| Ejecutar pruebas    | `dotnet test`                                |
+| Limpiar artefactos  | `dotnet clean`                               |
+| Formatear código    | `dotnet format`                              |
+| Construir docker    | `docker build -t nexos-backend .`            |
+| Docker compose up   | `docker-compose up -d`                       |
+| Aplicar migraciones | `dotnet dotnet-ef database update`           |
 
 ---
 
-**Built with ❤️ using .NET 10 and Clean Architecture**
+**Construido con ❤️ usando .NET 10 y Arquitectura Limpia**
