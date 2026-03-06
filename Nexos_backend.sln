@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transversal", "Transversal"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexos.Application.Dto", "Nexos.Application.Dto\Nexos.Application.Dto.csproj", "{D10290CC-A281-48C5-9A45-1269EB324DCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexos.Application.Interface", "Nexos.Application.Interface\Nexos.Application.Interface.csproj", "{63125FEE-03EF-43F3-85DD-B1101E875BE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexos.Application.Interfaces", "Nexos.Application.Interfaces\Nexos.Application.Interfaces.csproj", "{63125FEE-03EF-43F3-85DD-B1101E875BE3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexos.Application.UseCases", "Nexos.Application.UseCases\Nexos.Application.UseCases.csproj", "{3F909B96-2ED1-438F-A9DC-51FF54784DC9}"
 EndProject
@@ -42,6 +42,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.dockerignore = .dockerignore
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		docs\DATABASE_CONFIGURATION.md = docs\DATABASE_CONFIGURATION.md
 	EndProjectSection
 EndProject
 Global
