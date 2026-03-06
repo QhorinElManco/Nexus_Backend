@@ -8,7 +8,13 @@ x86/
 [Aa][Rr][Mm]64/
 bld/
 [Bb]in/
+**/[Bb]in/
+**/bin\*/
+**/bin\\*/
 [Oo]bj/
+**/[Oo]bj/
+**/obj\*/
+**/obj\\*/
 [Ll]og/
 [Ll]ogs/
 
