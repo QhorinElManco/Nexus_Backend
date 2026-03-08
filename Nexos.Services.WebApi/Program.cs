@@ -1,9 +1,15 @@
+using System.Globalization;
 using Nexos.Persistence;
 using Nexos.Services.WebApi.Extensions;
 using Nexos.Transversal.Logging;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
+    .CreateLogger();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -12,9 +18,10 @@ builder.Services.AddAppHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
+builder.Host.UseSerilog();
+
 builder.Services.AddPersistenceServices(builder.Configuration, builder.Environment);
 builder.Services.AddTransversalLoggingServices(builder.Configuration);
-builder.Host.UseSerilog();
 
 var app = builder.Build();
 
