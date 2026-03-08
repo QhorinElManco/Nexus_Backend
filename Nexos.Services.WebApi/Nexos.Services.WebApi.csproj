@@ -12,13 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore"/>
     <PackageReference Include="Microsoft.OpenApi"/>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
     <PackageReference Include="Scalar.AspNetCore"/>
   </ItemGroup>
 
@@ -29,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Nexos.Persistence\Nexos.Persistence.csproj"/>
     <ProjectReference Include="..\Nexos.Transversal.Logging\Nexos.Transversal.Logging.csproj"/>
   </ItemGroup>
 

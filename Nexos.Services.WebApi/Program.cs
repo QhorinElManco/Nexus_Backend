@@ -1,3 +1,4 @@
+using Nexos.Persistence;
 using Nexos.Services.WebApi.Extensions;
 using Nexos.Transversal.Logging;
 using Serilog;
@@ -11,28 +12,9 @@ builder.Services.AddAppHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
+builder.Services.AddPersistenceServices(builder.Configuration, builder.Environment);
 builder.Services.AddTransversalLoggingServices(builder.Configuration);
 builder.Host.UseSerilog();
-
-// Configure Entity Framework Core with PostgreSQL
-// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-//                        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-//
-// builder.Services.AddDbContext<NexosDbContext>(options =>
-// {
-//     options.UseNpgsql(connectionString);
-//
-//     // Enable sensitive data logging only in development
-//     if (builder.Environment.IsDevelopment())
-//     {
-//         options.EnableSensitiveDataLogging();
-//         options.EnableDetailedErrors();
-//     }
-// });
-
-// Register database health check
-// builder.Services.AddHealthChecks()
-//     .AddDbContextCheck<NexosDbContext>("database");
 
 var app = builder.Build();
 
