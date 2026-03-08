@@ -1,4 +1,4 @@
-namespace Nexos.Services.WebApi.Configuration;
+namespace Nexos.Transversal.Logging;
 
 /// <summary>
 /// Root options for Serilog configuration bound from the "Serilog" section in appsettings.json.
@@ -47,9 +47,9 @@ public sealed class SerilogFileOptions
 /// </summary>
 public sealed class SerilogPostgreSqlOptions
 {
-    public bool Enabled { get; set; } = true;
+    public bool Enabled { get; set; }
     public string ConnectionStringName { get; set; } = "DefaultConnection";
-    public string TableName { get; set; } = "logs";
+    public string TableName { get; set; } = "Logs";
     public bool NeedAutoCreateTable { get; set; } = true;
     public int BatchSize { get; set; } = 100;
     public TimeSpan Period { get; set; } = TimeSpan.FromSeconds(5);

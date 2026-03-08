@@ -1,20 +1,21 @@
 using System.Globalization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Nexos.Services.WebApi.Configuration;
 using NpgsqlTypes;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.PostgreSQL;
 using Serilog.Sinks.PostgreSQL.ColumnWriters;
 
-namespace Nexos.Services.WebApi.Extensions;
+namespace Nexos.Transversal.Logging;
 
-public static class SerilogExtensions
+public static class ConfigureServices
 {
     /// <summary>
     /// Registra SerilogOptions desde la configuración y añade Serilog como proveedor de logging.
     /// </summary>
-    public static IServiceCollection AddAppSerilog(
+    public static IServiceCollection AddTransversalLoggingServices(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -33,19 +34,9 @@ public static class SerilogExtensions
             ConfigureLogger(lc, options, connectionString);
         });
 
-        return services;
-    }
+        services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
 
-    /// <summary>
-    /// Logger de arranque usado antes de que se construya el host (detecta excepciones de arranque).
-    /// Utiliza una configuración mínima solo para consola.
-    /// </summary>
-    public static LoggerConfiguration CreateBootstrapLogger()
-    {
-        return new LoggerConfiguration()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            .Enrich.FromLogContext()
-            .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture);
+        return services;
     }
 
     // -------------------------------------------------------------------------
