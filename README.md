@@ -284,7 +284,7 @@ dotnet build -c Release
 ### Construir Proyecto Específico
 
 ```bash
-dotnet build Nexos.Domain/Nexos.Domain.csproj
+dotnet build Nexos.Domain/Nexos.Domain.Core.csproj
 ```
 
 ### Limpiar Artefactos de Build

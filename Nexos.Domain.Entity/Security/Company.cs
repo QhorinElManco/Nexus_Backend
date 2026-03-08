@@ -1,10 +1,10 @@
-using Nexos.Domain.Entities.Audit;
-using Nexos.Domain.Entities.Customers;
-using Nexos.Domain.Entities.Products;
-using Nexos.Domain.Entities.Sales;
-using Nexos.Domain.Entities.Transactions;
+using Nexos.Domain.Entity.Audit;
+using Nexos.Domain.Entity.Customers;
+using Nexos.Domain.Entity.Products;
+using Nexos.Domain.Entity.Sales;
+using Nexos.Domain.Entity.Transactions;
 
-namespace Nexos.Domain.Entities.Security;
+namespace Nexos.Domain.Entity.Security;
 
 public class Company : BaseEntity
 {

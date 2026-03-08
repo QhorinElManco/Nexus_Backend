@@ -1,7 +1,7 @@
-using Serilog;
-using Nexos.Services.WebApi.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Nexos.Persistence;
+using Nexos.Services.WebApi.Extensions;
+using Serilog;
 
 Log.Logger = SerilogExtensions.CreateBootstrapLogger().CreateBootstrapLogger();
 

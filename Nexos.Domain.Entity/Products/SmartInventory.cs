@@ -1,4 +1,4 @@
-namespace Nexos.Domain.Entities.Products;
+namespace Nexos.Domain.Entity.Products;
 
 public class SmartInventory : BaseEntity
 {

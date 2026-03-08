@@ -1,4 +1,6 @@
-namespace Nexos.Domain.Entities.Products;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Products;
 
 public class Product : BaseEntity
 {
@@ -7,6 +9,6 @@ public class Product : BaseEntity
     public string? Category { get; set; }
     public string? Brand { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
+    public Company Company { get; set; } = null!;
     public ICollection<Sku> Skus { get; set; } = [];
 }

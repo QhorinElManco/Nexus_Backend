@@ -1,4 +1,6 @@
-namespace Nexos.Domain.Entities.Products;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Products;
 
 public class Supplier : BaseEntity
 {
@@ -6,6 +8,6 @@ public class Supplier : BaseEntity
     public required string Name { get; set; }
     public required string TaxId { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
+    public Company Company { get; set; } = null!;
     public ICollection<SmartInventory> SmartInventories { get; set; } = [];
 }

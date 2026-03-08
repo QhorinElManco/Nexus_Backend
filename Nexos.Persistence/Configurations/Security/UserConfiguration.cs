@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nexos.Domain.Entities.Security;
+using Nexos.Domain.Entity.Security;
 
 namespace Nexos.Persistence.Configurations.Security;
 

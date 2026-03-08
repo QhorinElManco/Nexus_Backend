@@ -1,4 +1,7 @@
-namespace Nexos.Domain.Entities.Products;
+using Nexos.Domain.Entity.Sales;
+using Nexos.Domain.Entity.Transactions;
+
+namespace Nexos.Domain.Entity.Products;
 
 public class Sku : BaseEntity
 {
@@ -10,6 +13,6 @@ public class Sku : BaseEntity
 
     public Product Product { get; set; } = null!;
     public ICollection<SmartInventory> SmartInventories { get; set; } = [];
-    public ICollection<Transactions.KardexEntry> KardexEntries { get; set; } = [];
-    public ICollection<Sales.OrderDetail> OrderDetails { get; set; } = [];
+    public ICollection<KardexEntry> KardexEntries { get; set; } = [];
+    public ICollection<OrderDetail> OrderDetails { get; set; } = [];
 }

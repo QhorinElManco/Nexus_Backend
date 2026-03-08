@@ -1,4 +1,7 @@
-namespace Nexos.Domain.Entities.Customers;
+using Nexos.Domain.Entity.Sales;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Customers;
 
 public class Customer : BaseEntity
 {
@@ -10,8 +13,8 @@ public class Customer : BaseEntity
     public double? Lng { get; set; }
     public required string Status { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
+    public Company Company { get; set; } = null!;
     public ICollection<CustomerAssignment> CustomerAssignments { get; set; } = [];
-    public ICollection<Sales.Visit> Visits { get; set; } = [];
-    public ICollection<Sales.Order> Orders { get; set; } = [];
+    public ICollection<Visit> Visits { get; set; } = [];
+    public ICollection<Order> Orders { get; set; } = [];
 }

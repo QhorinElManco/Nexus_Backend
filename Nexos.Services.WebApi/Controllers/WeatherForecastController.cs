@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Nexos.Services.WebApi.Controllers;
 

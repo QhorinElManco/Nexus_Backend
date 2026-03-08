@@ -1,4 +1,4 @@
-namespace Nexos.Domain.Entities.Security;
+namespace Nexos.Domain.Entity.Security;
 
 public class Access : BaseEntity
 {

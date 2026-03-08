@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Nexos.Domain.Entities;
-using Nexos.Domain.Entities.Security;
-using Nexos.Domain.Entities.Customers;
-using Nexos.Domain.Entities.Products;
-using Nexos.Domain.Entities.Transactions;
-using Nexos.Domain.Entities.Sales;
-using Nexos.Domain.Entities.Audit;
+using Nexos.Domain.Entity.Audit;
+using Nexos.Domain.Entity.Customers;
+using Nexos.Domain.Entity.Products;
+using Nexos.Domain.Entity.Sales;
+using Nexos.Domain.Entity.Security;
+using Nexos.Domain.Entity.Transactions;
 
 namespace Nexos.Persistence;
 

@@ -1,4 +1,7 @@
-namespace Nexos.Domain.Entities.Transactions;
+using Nexos.Domain.Entity.Products;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Transactions;
 
 public class KardexEntry : BaseEntity
 {
@@ -16,8 +19,8 @@ public class KardexEntry : BaseEntity
     public double? Lat { get; set; }
     public double? Lng { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
-    public Products.Warehouse Warehouse { get; set; } = null!;
-    public Products.Sku Sku { get; set; } = null!;
-    public Security.User User { get; set; } = null!;
+    public Company Company { get; set; } = null!;
+    public Warehouse Warehouse { get; set; } = null!;
+    public Sku Sku { get; set; } = null!;
+    public User User { get; set; } = null!;
 }

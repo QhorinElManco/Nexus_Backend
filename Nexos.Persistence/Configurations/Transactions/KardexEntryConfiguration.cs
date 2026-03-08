@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nexos.Domain.Entities.Transactions;
+using Nexos.Domain.Entity.Transactions;
 
 namespace Nexos.Persistence.Configurations.Transactions;
 

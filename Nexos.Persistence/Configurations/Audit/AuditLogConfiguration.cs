@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nexos.Domain.Entities.Audit;
+using Nexos.Domain.Entity.Audit;
 
 namespace Nexos.Persistence.Configurations.Audit;
 

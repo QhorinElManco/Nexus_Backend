@@ -1,4 +1,6 @@
-namespace Nexos.Domain.Entities.Sales;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Sales;
 
 public class Payment : BaseEntity
 {
@@ -11,7 +13,7 @@ public class Payment : BaseEntity
     public double? Lat { get; set; }
     public double? Lng { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
+    public Company Company { get; set; } = null!;
     public Order Order { get; set; } = null!;
-    public Security.User User { get; set; } = null!;
+    public User User { get; set; } = null!;
 }

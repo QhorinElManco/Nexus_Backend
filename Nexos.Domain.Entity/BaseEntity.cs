@@ -1,4 +1,4 @@
-namespace Nexos.Domain.Entities;
+namespace Nexos.Domain.Entity;
 
 public abstract class BaseEntity
 {

@@ -1,4 +1,8 @@
-namespace Nexos.Domain.Entities.Products;
+using Nexos.Domain.Entity.Sales;
+using Nexos.Domain.Entity.Security;
+using Nexos.Domain.Entity.Transactions;
+
+namespace Nexos.Domain.Entity.Products;
 
 public class Warehouse : BaseEntity
 {
@@ -9,9 +13,9 @@ public class Warehouse : BaseEntity
     public double? Lat { get; set; }
     public double? Lng { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
-    public Security.User Manager { get; set; } = null!;
+    public Company Company { get; set; } = null!;
+    public User Manager { get; set; } = null!;
     public ICollection<SmartInventory> SmartInventories { get; set; } = [];
-    public ICollection<Transactions.KardexEntry> KardexEntries { get; set; } = [];
-    public ICollection<Sales.Order> Orders { get; set; } = [];
+    public ICollection<KardexEntry> KardexEntries { get; set; } = [];
+    public ICollection<Order> Orders { get; set; } = [];
 }

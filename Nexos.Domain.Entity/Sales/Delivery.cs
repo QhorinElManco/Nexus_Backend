@@ -1,4 +1,6 @@
-namespace Nexos.Domain.Entities.Sales;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Sales;
 
 public class Delivery : BaseEntity
 {
@@ -11,7 +13,7 @@ public class Delivery : BaseEntity
     public required string Status { get; set; }
     public string? ProofOfDeliveryUrl { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
+    public Company Company { get; set; } = null!;
     public Order Order { get; set; } = null!;
-    public Security.User User { get; set; } = null!;
+    public User User { get; set; } = null!;
 }

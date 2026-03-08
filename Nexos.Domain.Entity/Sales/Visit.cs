@@ -1,4 +1,7 @@
-namespace Nexos.Domain.Entities.Sales;
+using Nexos.Domain.Entity.Customers;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Sales;
 
 public class Visit : BaseEntity
 {
@@ -12,8 +15,8 @@ public class Visit : BaseEntity
     public required string Status { get; set; }
     public string? CancelReason { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
-    public Security.User User { get; set; } = null!;
-    public Customers.Customer Customer { get; set; } = null!;
+    public Company Company { get; set; } = null!;
+    public User User { get; set; } = null!;
+    public Customer Customer { get; set; } = null!;
     public ICollection<Order> Orders { get; set; } = [];
 }

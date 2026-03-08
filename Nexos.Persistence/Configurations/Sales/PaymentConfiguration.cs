@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nexos.Domain.Entities.Sales;
+using Nexos.Domain.Entity.Sales;
 
 namespace Nexos.Persistence.Configurations.Sales;
 

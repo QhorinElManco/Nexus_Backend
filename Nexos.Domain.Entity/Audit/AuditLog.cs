@@ -1,4 +1,6 @@
-namespace Nexos.Domain.Entities.Audit;
+using Nexos.Domain.Entity.Security;
+
+namespace Nexos.Domain.Entity.Audit;
 
 public class AuditLog : BaseEntity
 {
@@ -14,6 +16,6 @@ public class AuditLog : BaseEntity
     public double? Lat { get; set; }
     public double? Lng { get; set; }
 
-    public Security.Company Company { get; set; } = null!;
-    public Security.User? User { get; set; }
+    public Company Company { get; set; } = null!;
+    public User? User { get; set; }
 }
