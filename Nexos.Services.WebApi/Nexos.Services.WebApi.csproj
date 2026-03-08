@@ -20,12 +20,6 @@
     <PackageReference Include="Microsoft.OpenApi"/>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
     <PackageReference Include="Scalar.AspNetCore"/>
-    <PackageReference Include="Serilog.AspNetCore"/>
-    <PackageReference Include="Serilog.Enrichers.Environment"/>
-    <PackageReference Include="Serilog.Enrichers.Thread"/>
-    <PackageReference Include="Serilog.Settings.AppSettings"/>
-    <PackageReference Include="Serilog.Sinks.File"/>
-    <PackageReference Include="Serilog.Sinks.Postgresql.Alternative"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nexos.Persistence\Nexos.Persistence.csproj"/>
+    <ProjectReference Include="..\Nexos.Transversal.Logging\Nexos.Transversal.Logging.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\"/>
   </ItemGroup>
 
 </Project>
