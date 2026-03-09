@@ -17,6 +17,8 @@ public static class ConfigureServices
         services.AddDbContext<NexosDbContext>(options =>
         {
             options.UseNpgsql(connectionString);
+            // TODO: Habilitar el interceptor cuando ya tengamos compania y autenticación de usuarios
+            // options.AddInterceptors(new SaveChangesInterceptor());
 
             // Habilitar el registro de datos sensibles solo en desarrollo
             if (environment.IsDevelopment())
