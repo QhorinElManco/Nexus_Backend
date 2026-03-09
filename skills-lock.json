@@ -1,11 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "dotnet-backend-patterns": {
-      "source": "wshobson/agents",
-      "sourceType": "github",
-      "computedHash": "8e3f80d9f1c4fa28d9903ee027fc0ed741b6d0f213532a6b9ef78e192674ce86"
-    },
     "git-commit": {
       "source": "github/awesome-copilot",
       "sourceType": "github",
