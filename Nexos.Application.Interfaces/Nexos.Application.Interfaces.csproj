@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Nexos.Domain.Entity\Nexos.Domain.Entity.csproj"/>
+  </ItemGroup>
+
 </Project>

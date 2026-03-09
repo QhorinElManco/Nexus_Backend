@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nexos.Application.Interfaces.Repositories;
+using Nexos.Persistence.Repositories;
 
 namespace Nexos.Persistence;
 
@@ -27,6 +29,9 @@ public static class ConfigureServices
                 options.EnableDetailedErrors();
             }
         });
+
+        // Repositories
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
 
         // Registro de la base de datos de revisión de salud
         services.AddHealthChecks()

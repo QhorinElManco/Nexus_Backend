@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Nexos.Domain.Entity\Nexos.Domain.Entity.csproj"/>
+    <ProjectReference Include="..\Nexos.Application.Interfaces\Nexos.Application.Interfaces.csproj"/>
   </ItemGroup>
 
 </Project>

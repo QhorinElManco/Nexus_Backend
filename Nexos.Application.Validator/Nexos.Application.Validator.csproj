@@ -4,7 +4,16 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Application.Validator</RootNamespace>
+    <RootNamespace>Nexos.Application.Validator</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation"/>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nexos.Application.Dto\Nexos.Application.Dto.csproj"/>
+  </ItemGroup>
 
 </Project>

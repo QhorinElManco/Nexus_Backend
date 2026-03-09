@@ -1,4 +1,5 @@
 using System.Globalization;
+using Nexos.Application.UseCases;
 using Nexos.Persistence;
 using Nexos.Services.WebApi.Extensions;
 using Nexos.Transversal.Logging;
@@ -22,6 +23,7 @@ builder.Host.UseSerilog();
 
 builder.Services.AddPersistenceServices(builder.Configuration, builder.Environment);
 builder.Services.AddTransversalLoggingServices(builder.Configuration);
+builder.Services.AddApplicationUseCasesServices();
 
 var app = builder.Build();
 

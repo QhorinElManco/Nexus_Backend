@@ -6,4 +6,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentValidation"/>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nexos.Application.Interfaces\Nexos.Application.Interfaces.csproj"/>
+    <ProjectReference Include="..\Nexos.Application.Dto\Nexos.Application.Dto.csproj"/>
+    <ProjectReference Include="..\Nexos.Domain.Entity\Nexos.Domain.Entity.csproj"/>
+    <ProjectReference Include="..\Nexos.Transversal.Common\Nexos.Transversal.Common.csproj"/>
+  </ItemGroup>
+
 </Project>

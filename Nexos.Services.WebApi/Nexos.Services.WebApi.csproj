@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Nexos.Persistence\Nexos.Persistence.csproj"/>
+    <ProjectReference Include="..\Nexos.Application.UseCases\Nexos.Application.UseCases.csproj"/>
     <ProjectReference Include="..\Nexos.Transversal.Logging\Nexos.Transversal.Logging.csproj"/>
   </ItemGroup>
 
