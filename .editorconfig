@@ -240,10 +240,8 @@ dotnet_naming_rule.delegate_naming.style = delegate_style
 # Code analysis rules
 dotnet_code_quality_unused_parameters = all:suggestion
 dotnet_code_quality_CA1716 = none
-dotnet_diagnostic.CA1062.severity = suggestion
 dotnet_diagnostic.CA1031.severity = suggestion
 dotnet_diagnostic.CA1822.severity = suggestion
-dotnet_diagnostic.CA2007.severity = suggestion
 
 # IDE rules
 dotnet_diagnostic.IDE0001.severity = suggestion
@@ -252,7 +250,6 @@ dotnet_diagnostic.IDE0003.severity = suggestion
 dotnet_diagnostic.IDE0004.severity = suggestion
 dotnet_diagnostic.IDE0005.severity = suggestion
 dotnet_diagnostic.IDE0007.severity = suggestion
-dotnet_diagnostic.IDE0008.severity = suggestion
 dotnet_diagnostic.IDE0009.severity = suggestion
 dotnet_diagnostic.IDE0010.severity = suggestion
 dotnet_diagnostic.IDE0011.severity = suggestion
@@ -298,7 +295,7 @@ dotnet_diagnostic.IDE0054.severity = suggestion
 dotnet_diagnostic.IDE0055.severity = suggestion
 dotnet_diagnostic.IDE0056.severity = suggestion
 dotnet_diagnostic.IDE0057.severity = suggestion
-dotnet_diagnostic.IDE0058.severity = suggestion
+dotnet_diagnostic.IDE0058.severity = none
 dotnet_diagnostic.IDE0059.severity = suggestion
 dotnet_diagnostic.IDE0060.severity = suggestion
 dotnet_diagnostic.IDE0061.severity = suggestion
@@ -337,7 +334,6 @@ dotnet_diagnostic.IDE0120.severity = suggestion
 dotnet_diagnostic.IDE0130.severity = suggestion
 dotnet_diagnostic.IDE0140.severity = suggestion
 dotnet_diagnostic.IDE0150.severity = suggestion
-dotnet_diagnostic.IDE0160.severity = suggestion
 dotnet_diagnostic.IDE0170.severity = suggestion
 dotnet_diagnostic.IDE0180.severity = suggestion
 dotnet_diagnostic.IDE0190.severity = suggestion
