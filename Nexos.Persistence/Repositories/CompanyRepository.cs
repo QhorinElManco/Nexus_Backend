@@ -33,10 +33,10 @@ public class CompanyRepository(NexosDbContext context) : ICompanyRepository
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var term = searchTerm.ToLowerInvariant();
+            var term = searchTerm.Trim();
             query = query.Where(c =>
-                c.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                c.TaxId.Contains(term, StringComparison.OrdinalIgnoreCase));
+                EF.Functions.ILike(c.Name, $"%{term}%") ||
+                EF.Functions.ILike(c.TaxId, $"%{term}%"));
         }
 
         var totalCount = await query.CountAsync(ct);
@@ -66,7 +66,7 @@ public class CompanyRepository(NexosDbContext context) : ICompanyRepository
 
     public async Task DeleteAsync(long id, CancellationToken ct = default)
     {
-        var entity = await context.Companies.FindAsync(new object[] { id }, ct);
+        var entity = await context.Companies.FindAsync([id], ct);
         if (entity != null)
         {
             entity.IsDeleted = true;
