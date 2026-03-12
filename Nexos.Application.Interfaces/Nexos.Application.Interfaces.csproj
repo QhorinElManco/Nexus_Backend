@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Nexos.Application.Dto\Nexos.Application.Dto.csproj" />
     <ProjectReference Include="..\Nexos.Domain.Entity\Nexos.Domain.Entity.csproj"/>
+    <ProjectReference Include="..\Nexos.Transversal.Common\Nexos.Transversal.Common.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,5 @@
-using System.Reflection;
-using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Nexos.Application.Interfaces.UseCases;
 using Nexos.Application.UseCases.Companies;
 using Nexos.Application.Validator;
 

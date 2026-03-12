@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Nexos.Application.Dto.Companies;
-using Nexos.Application.UseCases.Companies;
+using Nexos.Application.Interfaces.UseCases;
 using Nexos.Transversal.Common.Response;
 
 namespace Nexos.Services.WebApi.Controllers;

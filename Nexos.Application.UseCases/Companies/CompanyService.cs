@@ -1,24 +1,12 @@
 using FluentValidation;
 using Nexos.Application.Dto.Companies;
 using Nexos.Application.Interfaces.Repositories;
+using Nexos.Application.Interfaces.UseCases;
 using Nexos.Domain.Entity.Security;
 using Nexos.Transversal.Common;
 using Nexos.Transversal.Common.Response;
 
 namespace Nexos.Application.UseCases.Companies;
-
-public interface ICompanyService
-{
-    public Task<Response<CompanyDto>> GetByIdAsync(long id, CancellationToken ct = default);
-    public Task<Response<IReadOnlyList<CompanyDto>>> GetAllAsync(CancellationToken ct = default);
-
-    public Task<ResponsePagination<CompanyDto>> SearchAsync(CompanySearchRequest request,
-        CancellationToken ct = default);
-
-    public Task<Response<CompanyDto>> CreateAsync(CreateCompanyDto dto, CancellationToken ct = default);
-    public Task<Response<CompanyDto>> UpdateAsync(long id, UpdateCompanyDto dto, CancellationToken ct = default);
-    public Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default);
-}
 
 public class CompanyService(
     ICompanyRepository repository,
@@ -29,12 +17,10 @@ public class CompanyService(
     public async Task<Response<CompanyDto>> GetByIdAsync(long id, CancellationToken ct = default)
     {
         var company = await repository.GetByIdAsync(id, ct);
-        if (company is null)
-        {
-            return Response<CompanyDto>.Fail("Company not found", ErrorCode.NotFound);
-        }
 
-        return Response<CompanyDto>.Ok(MapToDto(company));
+        return company is null
+            ? Response<CompanyDto>.Fail("Company not found", ErrorCode.NotFound)
+            : Response<CompanyDto>.Ok(MapToDto(company));
     }
 
     public async Task<Response<IReadOnlyList<CompanyDto>>> GetAllAsync(CancellationToken ct = default)
@@ -49,8 +35,7 @@ public class CompanyService(
         var validationResult = await searchValidator.ValidateAsync(request, ct);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return ResponsePagination<CompanyDto>.Fail(string.Join(", ", errors), ErrorCode.ValidationError);
+            return validationResult.ToFailureResponsePagination<CompanyDto>();
         }
 
         var (items, totalCount) = await repository.SearchAsync(
@@ -71,8 +56,7 @@ public class CompanyService(
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Response<CompanyDto>.Fail(string.Join(", ", errors), ErrorCode.ValidationError);
+            return validationResult.ToFailureResponse<CompanyDto>();
         }
 
         if (await repository.ExistsByTaxIdAsync(dto.TaxId, ct))
@@ -85,13 +69,13 @@ public class CompanyService(
         return Response<CompanyDto>.Ok(MapToDto(created), "Company created successfully");
     }
 
-    public async Task<Response<CompanyDto>> UpdateAsync(long id, UpdateCompanyDto dto, CancellationToken ct = default)
+    public async Task<Response<CompanyDto>> UpdateAsync(long id, UpdateCompanyDto dto,
+        CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Response<CompanyDto>.Fail(string.Join(", ", errors), ErrorCode.ValidationError);
+            return validationResult.ToFailureResponse<CompanyDto>();
         }
 
         var company = await repository.GetByIdAsync(id, ct);
