@@ -240,6 +240,7 @@ dotnet_naming_rule.delegate_naming.style = delegate_style
 # Code analysis rules
 dotnet_code_quality_unused_parameters = all:suggestion
 dotnet_code_quality_CA1716 = none
+dotnet_diagnostic.CA1000.severity = none
 dotnet_diagnostic.CA1031.severity = suggestion
 dotnet_diagnostic.CA1822.severity = suggestion
 
@@ -348,4 +349,5 @@ dotnet_diagnostic.IDE0270.severity = suggestion
 dotnet_diagnostic.IDE0280.severity = suggestion
 dotnet_diagnostic.IDE0290.severity = suggestion
 dotnet_diagnostic.IDE0300.severity = suggestion
+dotnet_diagnostic.IDE0305.severity = none
 dotnet_diagnostic.IDE1006.severity = suggestion
