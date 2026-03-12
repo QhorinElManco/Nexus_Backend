@@ -6,11 +6,17 @@ using Nexus.Application.UseCases.Companies;
 
 namespace Nexus.Application;
 
-public static class ConfigureServices
+public static class DependencyInjection
 {
-    public static void AddApplicationUseCasesServices(this IServiceCollection services)
+    /// <summary>
+    /// Registra los casos de uso y validadores de la capa Application.
+    /// La persistencia y el logging son responsabilidad de Infrastructure.
+    /// </summary>
+    public static IServiceCollection AddApplicationUseCasesServices(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddScoped<ICompanyService, CompanyService>();
+
+        return services;
     }
 }

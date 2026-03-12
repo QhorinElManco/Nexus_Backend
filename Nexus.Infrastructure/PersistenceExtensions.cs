@@ -3,13 +3,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nexus.Application.Interfaces.Repositories;
+using Nexus.Infrastructure.Persistence;
 using Nexus.Infrastructure.Persistence.Repositories;
 
-namespace Nexus.Infrastructure.Persistence;
+namespace Nexus.Infrastructure;
 
-public static class ConfigureServices
+internal static class PersistenceExtensions
 {
-    public static void AddPersistenceServices(this IServiceCollection services, IConfiguration configuration,
+    internal static IServiceCollection AddPersistenceServices(
+        this IServiceCollection services,
+        IConfiguration configuration,
         IHostEnvironment environment)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection")
@@ -36,5 +39,7 @@ public static class ConfigureServices
         // Registro de la base de datos de revisión de salud
         services.AddHealthChecks()
             .AddDbContextCheck<NexosDbContext>("database");
+
+        return services;
     }
 }

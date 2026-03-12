@@ -2,20 +2,21 @@ using System.Globalization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Nexus.Infrastructure.Logging;
 using NpgsqlTypes;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.PostgreSQL;
 using Serilog.Sinks.PostgreSQL.ColumnWriters;
 
-namespace Nexus.Infrastructure.Logging;
+namespace Nexus.Infrastructure;
 
-public static class ConfigureServices
+internal static class LoggingExtensions
 {
     /// <summary>
     /// Registra SerilogOptions desde la configuración y añade Serilog como proveedor de logging.
     /// </summary>
-    public static IServiceCollection AddTransversalLoggingServices(
+    internal static IServiceCollection AddTransversalLoggingServices(
         this IServiceCollection services,
         IConfiguration configuration)
     {

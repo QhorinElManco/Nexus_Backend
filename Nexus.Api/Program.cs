@@ -1,13 +1,16 @@
 using System.Globalization;
 using Nexus.Api.Extensions;
+using Nexus.Application;
+using Nexus.Infrastructure;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
-
+// Bootstrap logger: captura errores antes de que el DI container esté listo.
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
     .CreateLogger();
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -18,9 +21,11 @@ builder.Services.AddOpenApi();
 
 builder.Host.UseSerilog();
 
-// builder.Services.AddPersistenceServices(builder.Configuration, builder.Environment);
-// builder.Services.AddTransversalLoggingServices(builder.Configuration);
-// builder.Services.AddApplicationUseCasesServices();
+// Infrastructure: persistencia (EF Core + repositorios) y logging transversal (Serilog).
+builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
+
+// Application: casos de uso y validadores.
+builder.Services.AddApplicationUseCasesServices();
 
 var app = builder.Build();
 
@@ -38,9 +43,7 @@ app.UseHttpsRedirection();
 app.MapAppHealthChecks();
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 
 try
 {
