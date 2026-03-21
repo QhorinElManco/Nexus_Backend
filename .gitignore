@@ -354,6 +354,10 @@ Desktop.ini
 .env.*.local
 *.local.json
 
+# App settings overrides
+Nexus.Api/appsettings.Development.json
+Nexus.Api/appsettings.Production.json
+
 # Custom exclusions
 /build/
 /dist/
