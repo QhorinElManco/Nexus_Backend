@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Auth;
 using Nexus.Application.Dto.Response;
@@ -10,6 +11,7 @@ namespace Nexus.Api.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<ActionResult<Response<LoginResultDto>>> Login([FromBody] LoginRequest request,
         CancellationToken ct = default)
     {
@@ -18,6 +20,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("refresh")]
+    [AllowAnonymous]
     public async Task<ActionResult<Response<LoginResultDto>>> Refresh([FromBody] RefreshTokenRequest request,
         CancellationToken ct = default)
     {
@@ -26,6 +29,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("logout")]
+    [Authorize(Policy = "auth.logout")]
     public async Task<ActionResult<Response<bool>>> Logout(CancellationToken ct = default)
     {
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;

@@ -111,6 +111,16 @@ public class AuthService(
 
         claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
 
+        var permissions = user.UserRoles
+            .SelectMany(ur => ur.Role.RolePermissions)
+            .Select(rp => rp.Permission.Name)
+            .Distinct();
+
+        foreach (var permission in permissions)
+        {
+            claims.Add(new Claim("permission", permission));
+        }
+
         var token = new JwtSecurityToken(
             issuer: jwtSettings.Value.Issuer,
             audience: jwtSettings.Value.Audience,

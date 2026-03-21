@@ -1,4 +1,6 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
+using Nexus.Api.Authorization;
 using Nexus.Api.Extensions;
 using Nexus.Application;
 using Nexus.Application.Interfaces.UseCases;
@@ -17,6 +19,19 @@ builder.Services.AddAppApiVersioning();
 builder.Services.AddAppHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("users.view", p => p.RequireClaim("permission", "users.view"))
+    .AddPolicy("users.manage", p => p.RequireClaim("permission", "users.manage"))
+    .AddPolicy("roles.view", p => p.RequireClaim("permission", "roles.view"))
+    .AddPolicy("roles.manage", p => p.RequireClaim("permission", "roles.manage"))
+    .AddPolicy("companies.view", p => p.RequireClaim("permission", "companies.view"))
+    .AddPolicy("companies.manage", p => p.RequireClaim("permission", "companies.manage"))
+    .AddPolicy("accesses.view", p => p.RequireClaim("permission", "accesses.view"))
+    .AddPolicy("accesses.manage", p => p.RequireClaim("permission", "accesses.manage"))
+    .AddPolicy("auth.logout", p => p.RequireAuthenticatedUser());
+
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 
 builder.Host.UseSerilog();
 

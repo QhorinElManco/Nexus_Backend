@@ -58,7 +58,9 @@ public class UserRepository(NexosDbContext context) : IUserRepository
         return await context.Users
             .AsNoTracking()
             .Include(u => u.UserRoles)
-            .ThenInclude(ur => ur.Role)
+                .ThenInclude(ur => ur.Role)
+                    .ThenInclude(r => r.RolePermissions)
+                        .ThenInclude(rp => rp.Permission)
             .FirstOrDefaultAsync(u => u.Username == username, ct);
     }
 
