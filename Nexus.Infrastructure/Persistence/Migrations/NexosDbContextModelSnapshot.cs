@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Nexos.Persistence.Migrations
 {
-    [DbContext(typeof(NexosDbContext))]
+    [DbContext(typeof(NexusDbContext))]
     partial class NexosDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

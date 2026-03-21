@@ -18,9 +18,9 @@ el enfoque **Migration-First (Schema-First)**.
 
 ### Proyectos
 
-- **Nexos.Domain**: Entidades de dominio
-- **Nexos.Persistence**: DbContext, configuraciones, migraciones
-- **Nexos.Services.WebApi**: Registro del DbContext
+- **Nexus.Domain**: Entidades de dominio
+- **Nexus.Infrastructure**: DbContext, configuraciones, migraciones
+- **Nexus.Api**: Registro del DbContext
 
 ## Entidades de Dominio
 
@@ -267,7 +267,7 @@ public class CompanyConfiguration : BaseEntityConfiguration<Company>
 ## DbContext
 
 ```csharp
-public class NexosDbContext(DbContextOptions<NexosDbContext> options) : DbContext(options)
+public class NexusDbContext(DbContextOptions<NexusDbContext> options) : DbContext(options)
 {
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<User> Users => Set<User>();
@@ -276,7 +276,7 @@ public class NexosDbContext(DbContextOptions<NexosDbContext> options) : DbContex
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(NexosDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(NexusDbContext).Assembly);
     }
 }
 ```
@@ -289,7 +289,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Registro del DbContext
-builder.Services.AddDbContext<NexosDbContext>(options =>
+builder.Services.AddDbContext<NexusDbContext>(options =>
 {
     options.UseNpgsql(connectionString);
 
@@ -302,7 +302,7 @@ builder.Services.AddDbContext<NexosDbContext>(options =>
 
 // Health check de base de datos
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<NexosDbContext>("database");
+    .AddDbContextCheck<NexusDbContext>("database");
 ```
 
 ## Migraciones
@@ -310,9 +310,9 @@ builder.Services.AddHealthChecks()
 ### Crear una nueva migración
 
 ```bash
-dotnet dotnet-ef migrations add NombreMigracion \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi \
+dotnet ef migrations add NombreMigracion \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api \
     --output-dir Migrations
 ```
 
@@ -320,31 +320,31 @@ dotnet dotnet-ef migrations add NombreMigracion \
 
 ```bash
 # Aplicar directamente (desarrollo)
-dotnet dotnet-ef database update \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi
+dotnet ef database update \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api
 
 # Generar script SQL
-dotnet dotnet-ef migrations script \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi \
+dotnet ef migrations script \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api \
     -o migration.sql
 ```
 
 ### Revertir migración
 
 ```bash
-dotnet dotnet-ef database update MigrationsAnterior \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi
+dotnet ef database update MigrationsAnterior \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api
 ```
 
 ## Patrón Repository
 
 El proyecto sigue el patrón Repository con:
 
-- **Interfaz**: En `Nexos.Application.Interface`
-- **Implementación**: En `Nexos.Infrastructure` usando EF Core
+- **Interfaz**: En `Nexus.Application`
+- **Implementación**: En `Nexus.Infrastructure` usando EF Core
 
 ## Convenciones de Nombrado
 
@@ -368,10 +368,10 @@ El proyecto sigue el patrón Repository con:
 ### Regenerar DbContext desde base de datos
 
 ```bash
-dotnet dotnet-ef dbcontext scaffold \
-    "Host=localhost;Database=nexos;Username=nexos_user;Password=nexos_pass" \
+dotnet ef dbcontext scaffold \
+    "Host=localhost;Database=nexus;Username=nexus_user;Password=nexus_pass" \
     Npgsql.EntityFrameworkCore.PostgreSQL \
-    --project Nexos.Persistence \
+    --project Nexus.Infrastructure \
     --output-dir Entities \
     --context-dir .
 ```
@@ -379,13 +379,13 @@ dotnet dotnet-ef dbcontext scaffold \
 ### Regenerar migraciones (si hay cambios manuales en BD)
 
 ```bash
-dotnet dotnet-ef migrations remove \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi
+dotnet ef migrations remove \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api
 
-dotnet dotnet-ef migrations add InitialCreate \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi
+dotnet ef migrations add InitialCreate \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api
 ```
 
 ## Recursos

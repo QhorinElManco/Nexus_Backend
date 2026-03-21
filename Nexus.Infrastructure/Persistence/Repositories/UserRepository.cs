@@ -4,7 +4,7 @@ using Nexus.Domain.Entities.Security;
 
 namespace Nexus.Infrastructure.Persistence.Repositories;
 
-public class UserRepository(NexosDbContext context) : IUserRepository
+public class UserRepository(NexusDbContext context) : IUserRepository
 {
     public Task<User?> GetByIdAsync(long id, CancellationToken ct = default)
     {

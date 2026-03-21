@@ -4,7 +4,7 @@ using Nexus.Domain.Entities.Security;
 
 namespace Nexus.Infrastructure.Persistence.Repositories;
 
-public class AccessRepository(NexosDbContext context) : IAccessRepository
+public class AccessRepository(NexusDbContext context) : IAccessRepository
 {
     public async Task<Access?> GetByIdAsync(long id, CancellationToken ct = default)
     {

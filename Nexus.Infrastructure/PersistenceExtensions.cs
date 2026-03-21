@@ -22,7 +22,7 @@ internal static class PersistenceExtensions
                                ?? throw new InvalidOperationException(
                                    "Connection string 'DefaultConnection' not found.");
 
-        services.AddDbContext<NexosDbContext>(options =>
+        services.AddDbContext<NexusDbContext>(options =>
         {
             options.UseNpgsql(connectionString);
 
@@ -46,7 +46,7 @@ internal static class PersistenceExtensions
         services.Configure<SeedDataSettings>(configuration.GetSection(SeedDataSettings.SectionName));
 
         services.AddHealthChecks()
-            .AddDbContextCheck<NexosDbContext>("database");
+            .AddDbContextCheck<NexusDbContext>("database");
 
         return services;
     }

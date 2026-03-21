@@ -8,7 +8,7 @@ using Nexus.Infrastructure.Persistence;
 namespace Nexus.Infrastructure.Seed;
 
 public class DataSeedService(
-    NexosDbContext context,
+    NexusDbContext context,
     ICompanyRepository companyRepository,
     IUserRepository userRepository,
     IPasswordHasher passwordHasher) : IDataSeedService

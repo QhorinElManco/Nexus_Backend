@@ -8,7 +8,7 @@ using Nexus.Domain.Entities.Transactions;
 
 namespace Nexus.Infrastructure.Persistence;
 
-public class NexosDbContext(DbContextOptions<NexosDbContext> options) : DbContext(options)
+public class NexusDbContext(DbContextOptions<NexusDbContext> options) : DbContext(options)
 {
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<User> Users => Set<User>();
@@ -40,6 +40,6 @@ public class NexosDbContext(DbContextOptions<NexosDbContext> options) : DbContex
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(NexosDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(NexusDbContext).Assembly);
     }
 }

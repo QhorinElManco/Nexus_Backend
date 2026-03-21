@@ -4,7 +4,7 @@ using Nexus.Domain.Entities.Security;
 
 namespace Nexus.Infrastructure.Persistence.Repositories;
 
-public class RoleRepository(NexosDbContext context) : IRoleRepository
+public class RoleRepository(NexusDbContext context) : IRoleRepository
 {
     public Task<Role?> GetByIdAsync(long id, CancellationToken ct = default)
     {

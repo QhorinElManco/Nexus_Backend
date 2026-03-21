@@ -4,7 +4,7 @@ using Nexus.Domain.Entities.Security;
 
 namespace Nexus.Infrastructure.Persistence.Repositories;
 
-public class CompanyRepository(NexosDbContext context) : ICompanyRepository
+public class CompanyRepository(NexusDbContext context) : ICompanyRepository
 {
     public async Task<Company?> GetByIdAsync(long id, CancellationToken ct = default)
     {

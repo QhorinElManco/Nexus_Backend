@@ -1,4 +1,4 @@
-# Nexos Backend
+# Nexus Backend
 
 Una API backend moderna .NET construida con Arquitectura Limpia y principios de Domain-Driven Design.
 
@@ -22,7 +22,7 @@ Una API backend moderna .NET construida con Arquitectura Limpia y principios de 
 
 ## Resumen
 
-Nexos Backend es una aplicación .NET de nivel empresarial siguiendo principios de Arquitectura Limpia. La solución está
+Nexus Backend es una aplicación .NET de nivel empresarial siguiendo principios de Arquitectura Limpia. La solución está
 diseñada para ser mantenible, testeable y escalable, con una clara separación de responsabilidades entre las diferentes
 capas.
 
@@ -37,33 +37,21 @@ capas.
 
 ## Arquitectura
 
-Este proyecto sigue **Arquitectura Limpia** (también conocida como Arquitectura Onion o Hexagonal) con las siguientes
-capas:
+Este proyecto sigue **Arquitectura Limpia** (también conocida como Arquitectura Onion o Hexagonal) con las siguientes capas:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Capa de Presentación                     │
-│                  (Nexos.Services.WebApi)                    │
+│                      Capa de Presentación                    │
+│                        (Nexus.Api)                           │
 ├─────────────────────────────────────────────────────────────┤
-│                      Capa de Aplicación                     │
-│  ┌──────────────────┐  ┌────────────────────┐               │
-│  │  Application.Dto │  │Application.UseCases│               │
-│  └──────────────────┘  └────────────────────┘               │
-│  ┌──────────────────┐  ┌──────────────────┐                 │
-│  │Application.      │  │Application.      │                 │
-│  │Interface         │  │Validator         │                 │
-│  └──────────────────┘  └──────────────────┘                 │
+│                       Capa de Aplicación                     │
+│                     (Nexus.Application)                     │
 ├─────────────────────────────────────────────────────────────┤
-│                       Capa de Dominio                       │
-│                       (Nexos.Domain)                        │
+│                        Capa de Dominio                       │
+│                        (Nexus.Domain)                        │
 ├─────────────────────────────────────────────────────────────┤
-│                    Capa de Infraestructura                  │
-│  ┌──────────────────┐  ┌──────────────────┐                 │
-│  │Infrastructure    │  │Persistence       │                 │
-│  └──────────────────┘  └──────────────────┘                 │
-├─────────────────────────────────────────────────────────────┤
-│                     Capa Transversal                        │
-│                  (Transversal.Common)                       │
+│                     Capa de Infraestructura                 │
+│                    (Nexus.Infrastructure)                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -71,17 +59,16 @@ capas:
 
 Las dependencias fluyen **hacia adentro**:
 
-- **Presentacion** depende de **Aplicacion** e **Infraestructura**
-- **Aplicacion** depende de **Dominio**
-- **Infraestructura** depende de **Aplicacion** y **Dominio**
-- **Dominio** no tiene dependencias (lógica de negocio core)
-- **Transversal.Common** provee aspectos transversales
+- **Api** depende de **Application**, **Infrastructure** y **Domain**
+- **Application** depende de **Domain**
+- **Infrastructure** depende de **Domain**
+- **Domain** no tiene dependencias (lógica de negocio core)
 
 ## Tecnologías
 
 - **.NET 10.0** - Framework de aplicación
 - **ASP.NET Core** - Framework de API web
-- **C# 12** - Lenguaje de programación
+- **C# 13** - Lenguaje de programación
 - **Entity Framework Core** - ORM con PostgreSQL
 - **Arquitectura Limpia** - Patrón arquitectónico
 - **Domain-Driven Design** - Enfoque de diseño
@@ -97,6 +84,7 @@ usando [Central Package Management](https://devblogs.microsoft.com/nuget/introdu
 - `Npgsql.EntityFrameworkCore.PostgreSQL` - Provider PostgreSQL
 - `Serilog.AspNetCore` - Logging estructurado
 - `Microsoft.AspNetCore.OpenApi` - Soporte OpenAPI
+- `FluentValidation` - Validación de entrada
 
 ## Requisitos Previos
 
@@ -119,8 +107,8 @@ dotnet --version
 ### 1. Clonar el Repositorio
 
 ```bash
-git clone https://github.com/nexos/nexos-backend.git
-cd Nexos_backend
+git clone https://github.com/QhorinElManco/Nexus_Backend.git
+cd Nexu_backend
 ```
 
 ### 2. Restaurar Dependencias
@@ -139,13 +127,13 @@ dotnet build
 
 ```bash
 # Aplicar migraciones
-dotnet dotnet-ef database update --project Nexos.Persistence --startup-project Nexos.Services.WebApi
+dotnet ef database update --project Nexus.Infrastructure --startup-project Nexus.Api
 ```
 
 ### 5. Ejecutar la Aplicación
 
 ```bash
-cd Nexos.Services.WebApi
+cd Nexus.Api
 dotnet run
 ```
 
@@ -157,43 +145,33 @@ La API estará disponible en:
 ## Estructura del Proyecto
 
 ```
-Nexos_backend/
+Nexus_Backend/
 ├── .agents/                          # Habilidades y referencias de agentes IA
 ├── .github/                          # Flujos de trabajo de GitHub
-├── .idea/                           # Configuración de JetBrains Rider
-├── docs/                            # Documentación adicional
-├── Nexos.Domain/                    # Capa de dominio (entidades, value objects)
-├── Nexos.Application.Dto/           # Objetos de transferencia de datos
-├── Nexos.Application.Interface/     # Interfaces de servicios de aplicación
-├── Nexos.Application.UseCases/      # Implementaciones de casos de uso
-├── Nexos.Application.Validator/     # Validadores de entrada
-├── Nexos.Infrastructure/            # Implementaciones de infraestructura
-├── Nexos.Persistence/               # Capa de persistencia (EF Core, migraciones)
-├── Nexos.Services.WebApi/           # Capa de presentación de API
-├── Transversal.Common/              # Utilidades y helpers compartidos
-├── Directory.Build.props            # Configuración centralizada de build
-├── Directory.Packages.props         # Gestión central de paquetes
-├── global.json                      # Versión del SDK .NET
-├── .editorconfig                   # Reglas de estilo de código
-├── .gitignore                      # Patrones de exclusión de Git
-├── compose.yaml                     # Configuración de Docker Compose
-├── Nexos_backend.sln                # Archivo de solución
-└── README.md                       # Este archivo
+├── .idea/                            # Configuración de JetBrains Rider
+├── docs/                             # Documentación adicional
+├── Nexus.Domain/                     # Capa de dominio (entidades, value objects)
+├── Nexus.Application/                # Capa de aplicación (use cases, DTOs, interfaces)
+├── Nexus.Infrastructure/             # Implementaciones de infraestructura
+├── Nexus.Api/                        # Capa de presentación de API
+├── Directory.Build.props             # Configuración centralizada de build
+├── Directory.Packages.props          # Gestión central de paquetes
+├── global.json                       # Versión del SDK .NET
+├── .editorconfig                     # Reglas de estilo de código
+├── .gitignore                        # Patrones de exclusión de Git
+├── compose.yaml                      # Configuración de Docker Compose
+├── Nexus_Backend.sln                 # Archivo de solución
+└── README.md                         # Este archivo
 ```
 
 ### Responsabilidades de las Capas
 
-| Capa                      | Responsabilidad                                    | Dependencias                  |
-|---------------------------|----------------------------------------------------|-------------------------------|
-| **Domain**                | Lógica de negocio core, entidades                  | Ninguna                       |
-| **Application.Dto**       | Objetos DTO, modelos request/response              | Domain                        |
-| **Application.Interface** | Interfaces de servicios, contratos de repositorios | Domain                        |
-| **Application.UseCases**  | Casos de uso, servicios de aplicación              | Domain, Application.Interface |
-| **Application.Validator** | Reglas de validación de entrada                    | Application.Dto               |
-| **Infrastructure**        | Servicios externos, logging, caching               | Application.Interface, Domain |
-| **Persistence**           | Acceso a datos, repositorios                       | Application.Interface, Domain |
-| **Services.WebApi**       | Controladores API, middleware, configuración       | Todas las capas               |
-| **Transversal.Common**    | Aspectos transversales, utilidades                 | Ninguna                       |
+| Capa               | Responsabilidad                                    | Dependencias         |
+|--------------------|----------------------------------------------------|----------------------|
+| **Domain**         | Lógica de negocio core, entidades                  | Ninguna              |
+| **Application**    | Casos de uso, DTOs, interfaces de servicios        | Domain               |
+| **Infrastructure** | Implementaciones de repositorios, servicios       | Domain, Application |
+| **Api**            | Controladores API, middleware, configuración       | Todas las capas      |
 
 ## Guía de Desarrollo
 
@@ -284,7 +262,7 @@ dotnet build -c Release
 ### Construir Proyecto Específico
 
 ```bash
-dotnet build Nexos.Domain/Nexos.Domain.Core.csproj
+dotnet build Nexus.Domain/Nexus.Domain.csproj
 ```
 
 ### Limpiar Artefactos de Build
@@ -301,14 +279,14 @@ find . -type d -name "bin" -o -name "obj" | xargs rm -rf
 ### Modo Desarrollo
 
 ```bash
-cd Nexos.Services.WebApi
+cd Nexus.Api
 dotnet run
 ```
 
 ### Con Hot Reload
 
 ```bash
-cd Nexos.Services.WebApi
+cd Nexus.Api
 dotnet watch run
 ```
 
@@ -337,32 +315,32 @@ La configuración se carga desde:
 ### Construir Imagen Docker
 
 ```bash
-docker build -t nexos-backend:latest -f Nexos.Services.WebApi/Dockerfile .
+docker build -t nexus-backend:latest -f Nexus.Api/Dockerfile .
 ```
 
 ### Ejecutar con Docker Compose
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Comandos Docker
 
 ```bash
 # Construir
-docker-compose build
+docker compose build
 
 # Ejecutar en background
-docker-compose up -d
+docker compose up -d
 
 # Ver logs
-docker-compose logs -f
+docker compose logs -f
 
 # Detener
-docker-compose down
+docker compose down
 
 # Detener y remover volúmenes
-docker-compose down -v
+docker compose down -v
 ```
 
 ## Pruebas
@@ -492,19 +470,19 @@ en [docs/DATABASE_CONFIGURATION.md](docs/DATABASE_CONFIGURATION.md).
 
 ```bash
 # Crear nueva migración
-dotnet dotnet-ef migrations add NombreMigracion \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi
+dotnet ef migrations add NombreMigracion \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api
 
 # Aplicar migraciones
-dotnet dotnet-ef database update \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi
+dotnet ef database update \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api
 
 # Generar script SQL
-dotnet dotnet-ef migrations script \
-    --project Nexos.Persistence \
-    --startup-project Nexos.Services.WebApi \
+dotnet ef migrations script \
+    --project Nexus.Infrastructure \
+    --startup-project Nexus.Api \
     -o migration.sql
 ```
 
@@ -566,13 +544,13 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 |---------------------|----------------------------------------------|
 | Restaurar paquetes  | `dotnet restore`                             |
 | Construir solución  | `dotnet build`                               |
-| Ejecutar aplicación | `dotnet run --project Nexos.Services.WebApi` |
+| Ejecutar aplicación | `dotnet run --project Nexus.Api`            |
 | Ejecutar pruebas    | `dotnet test`                                |
 | Limpiar artefactos  | `dotnet clean`                               |
 | Formatear código    | `dotnet format`                              |
-| Construir docker    | `docker build -t nexos-backend .`            |
-| Docker compose up   | `docker-compose up -d`                       |
-| Aplicar migraciones | `dotnet dotnet-ef database update`           |
+| Construir docker    | `docker build -t nexus-backend .`           |
+| Docker compose up   | `docker compose up -d`                       |
+| Aplicar migraciones | `dotnet ef database update`                 |
 
 ---
 

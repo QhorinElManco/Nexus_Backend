@@ -4,7 +4,7 @@ using Nexus.Domain.Entities.Security;
 
 namespace Nexus.Infrastructure.Persistence.Repositories;
 
-public class UserRoleRepository(NexosDbContext context) : IUserRoleRepository
+public class UserRoleRepository(NexusDbContext context) : IUserRoleRepository
 {
     public async Task<bool> ExistsAsync(long userId, long roleId, CancellationToken ct = default)
     {
