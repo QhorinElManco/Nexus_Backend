@@ -1,7 +1,11 @@
 using System.Globalization;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Nexus.Api.Authorization;
 using Nexus.Api.Extensions;
+using Nexus.Api.OpenApi;
 using Nexus.Application;
 using Nexus.Application.Interfaces.UseCases;
 using Nexus.Infrastructure;
@@ -18,7 +22,26 @@ builder.Services.AddControllers();
 builder.Services.AddAppApiVersioning();
 builder.Services.AddAppHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("Jwt:Secret")
+                    ?? throw new InvalidOperationException("JWT Secret not configured")))
+        };
+    });
+
+builder.Services.AddOpenApi("v1", options =>
+{
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+});
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("users.view", p => p.RequireClaim("permission", "users.view"))
@@ -52,6 +75,7 @@ app.UseHttpsRedirection();
 
 app.MapAppHealthChecks();
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
