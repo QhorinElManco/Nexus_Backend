@@ -1,0 +1,88 @@
+using Microsoft.AspNetCore.Mvc;
+using Nexus.Application.Dto.Response;
+using Nexus.Application.Dto.Users;
+using Nexus.Application.Interfaces.UseCases;
+
+namespace Nexus.Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController(IUserService userService) : ControllerBase
+{
+    [HttpGet]
+    public async Task<ActionResult<Response<IReadOnlyList<UserDto>>>> GetAll(CancellationToken ct = default)
+    {
+        var result = await userService.GetAllAsync(ct);
+        return Ok(result);
+    }
+
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<Response<UserDto>>> GetById(long id, CancellationToken ct = default)
+    {
+        var result = await userService.GetByIdAsync(id, ct);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<ResponsePagination<UserDto>>> Search([FromQuery] UserSearchRequest request,
+        CancellationToken ct = default)
+    {
+        var result = await userService.SearchAsync(request, ct);
+        return Ok(result);
+    }
+
+    [HttpGet("username/{username}")]
+    public async Task<ActionResult<Response<UserDto>>> GetByUsername(string username, CancellationToken ct = default)
+    {
+        var result = await userService.GetByUsernameAsync(username, ct);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    [HttpGet("company/{companyId:long}")]
+    public async Task<ActionResult<Response<IReadOnlyList<UserDto>>>> GetByCompany(long companyId,
+        CancellationToken ct = default)
+    {
+        var result = await userService.GetByCompanyAsync(companyId, ct);
+        return Ok(result);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Response<UserDto>>> Create([FromBody] CreateUserDto dto,
+        CancellationToken ct = default)
+    {
+        var result = await userService.CreateAsync(dto, ct);
+        return result.Success
+            ? CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result)
+            : Conflict(result);
+    }
+
+    [HttpPut("{id:long}")]
+    public async Task<ActionResult<Response<UserDto>>> Update(long id, [FromBody] UpdateUserDto dto,
+        CancellationToken ct = default)
+    {
+        var result = await userService.UpdateAsync(id, dto, ct);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    [HttpDelete("{id:long}")]
+    public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
+    {
+        var result = await userService.DeleteAsync(id, ct);
+        return result.Success ? NoContent() : NotFound(result);
+    }
+
+    [HttpPost("{id:long}/roles")]
+    public async Task<ActionResult<Response<UserDto>>> AssignRole(long id, [FromBody] AssignRoleDto dto,
+        CancellationToken ct = default)
+    {
+        var result = await userService.AssignRoleAsync(id, dto, ct);
+        return result.Success ? Ok(result) : Conflict(result);
+    }
+
+    [HttpDelete("{id:long}/roles/{roleId:long}")]
+    public async Task<ActionResult<Response<bool>>> RemoveRole(long id, long roleId, CancellationToken ct = default)
+    {
+        var result = await userService.RemoveRoleAsync(id, roleId, ct);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+}
