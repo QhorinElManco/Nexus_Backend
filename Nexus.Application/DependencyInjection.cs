@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Application.Interfaces.UseCases;
+using Nexus.Application.UseCases.Access;
 using Nexus.Application.UseCases.Auth;
 using Nexus.Application.UseCases.Companies;
 using Nexus.Application.UseCases.Roles;
@@ -15,6 +16,7 @@ public static class DependencyInjection
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
+        services.AddScoped<IAccessService, AccessService>();
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
