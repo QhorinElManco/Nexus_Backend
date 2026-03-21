@@ -5,7 +5,10 @@ namespace Nexus.Application.Interfaces.UseCases;
 
 public interface IAuthService
 {
-    Task<Response<LoginResultDto>> LoginAsync(LoginRequest request, CancellationToken ct = default);
-    Task<Response<LoginResultDto>> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken ct = default);
-    Task<Response<bool>> LogoutAsync(long userId, CancellationToken ct = default);
+    public Task<Response<LoginResultDto>> LoginAsync(LoginRequest request, CancellationToken ct = default);
+
+    public Task<Response<LoginResultDto>>
+        RefreshTokenAsync(RefreshTokenRequest request, CancellationToken ct = default);
+
+    public Task<Response<bool>> LogoutAsync(long userId, CancellationToken ct = default);
 }

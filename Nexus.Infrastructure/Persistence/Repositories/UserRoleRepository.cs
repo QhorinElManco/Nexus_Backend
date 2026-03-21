@@ -24,7 +24,8 @@ public class UserRoleRepository(NexusDbContext context) : IUserRoleRepository
 
     public async Task RemoveAsync(long userId, long roleId, CancellationToken ct = default)
     {
-        var userRole = await context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId, ct);
+        var userRole =
+            await context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId, ct);
         if (userRole is not null)
         {
             context.UserRoles.Remove(userRole);

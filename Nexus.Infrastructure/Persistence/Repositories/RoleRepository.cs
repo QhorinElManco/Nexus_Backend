@@ -18,7 +18,7 @@ public class RoleRepository(NexusDbContext context) : IRoleRepository
         return await context.Roles
             .AsNoTracking()
             .Include(r => r.RolePermissions)
-                .ThenInclude(rp => rp.Permission)
+            .ThenInclude(rp => rp.Permission)
             .FirstOrDefaultAsync(r => r.Id == id, ct);
     }
 
@@ -64,12 +64,15 @@ public class RoleRepository(NexusDbContext context) : IRoleRepository
         }
     }
 
-    public async Task<bool> ExistsByNameAsync(string name, long companyId, long? excludeId = null, CancellationToken ct = default)
+    public async Task<bool> ExistsByNameAsync(string name, long companyId, long? excludeId = null,
+        CancellationToken ct = default)
     {
         var query = context.Roles.Where(r => r.Name == name && r.CompanyId == companyId);
 
         if (excludeId.HasValue)
+        {
             query = query.Where(r => r.Id != excludeId.Value);
+        }
 
         return await query.AnyAsync(ct);
     }

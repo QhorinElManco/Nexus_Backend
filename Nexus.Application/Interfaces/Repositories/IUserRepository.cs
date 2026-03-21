@@ -4,14 +4,14 @@ namespace Nexus.Application.Interfaces.Repositories;
 
 public interface IUserRepository : IRepository<User>
 {
-    Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default);
-    Task<User?> GetByUsernameWithRolesAsync(string username, CancellationToken ct = default);
-    Task<IReadOnlyList<User>> GetByCompanyAsync(long companyId, CancellationToken ct = default);
-    Task<User?> GetByIdWithRolesAsync(long id, CancellationToken ct = default);
-    Task<bool> ExistsByUsernameAsync(string username, long? excludeId = null, CancellationToken ct = default);
-    Task<User?> GetActiveUserByUsernameAsync(string username, CancellationToken ct = default);
+    public Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default);
+    public Task<User?> GetByUsernameWithRolesAsync(string username, CancellationToken ct = default);
+    public Task<IReadOnlyList<User>> GetByCompanyAsync(long companyId, CancellationToken ct = default);
+    public Task<User?> GetByIdWithRolesAsync(long id, CancellationToken ct = default);
+    public Task<bool> ExistsByUsernameAsync(string username, long? excludeId = null, CancellationToken ct = default);
+    public Task<User?> GetActiveUserByUsernameAsync(string username, CancellationToken ct = default);
 
-    Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(
+    public Task<(IReadOnlyList<User> Items, int TotalCount)> SearchAsync(
         string? searchTerm,
         long? companyId,
         int page,

@@ -122,9 +122,9 @@ public class AuthService(
         }
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings.Value.Issuer,
-            audience: jwtSettings.Value.Audience,
-            claims: claims,
+            jwtSettings.Value.Issuer,
+            jwtSettings.Value.Audience,
+            claims,
             expires: DateTime.UtcNow.AddMinutes(jwtSettings.Value.AccessTokenExpirationMinutes),
             signingCredentials: credentials
         );
@@ -163,15 +163,18 @@ public class AuthService(
         }
     }
 
-    private static UserDto MapToUserDto(User user) => new(
-        user.Id,
-        user.Username,
-        user.FullName,
-        user.CompanyId,
-        string.Empty,
-        user.IsActive,
-        user.UserRoles.Select(ur => new RoleDto(ur.Role.Id, ur.Role.Name, ur.Role.Description)).ToList(),
-        user.CreatedAt,
-        user.UpdatedAt
-    );
+    private static UserDto MapToUserDto(User user)
+    {
+        return new UserDto(
+            user.Id,
+            user.Username,
+            user.FullName,
+            user.CompanyId,
+            string.Empty,
+            user.IsActive,
+            user.UserRoles.Select(ur => new RoleDto(ur.Role.Id, ur.Role.Name, ur.Role.Description)).ToList(),
+            user.CreatedAt,
+            user.UpdatedAt
+        );
+    }
 }

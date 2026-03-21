@@ -34,7 +34,9 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var userId))
+        {
             return Unauthorized(Response<bool>.Fail("Invalid token", ErrorCode.UnauthorizedAccess));
+        }
 
         var result = await authService.LogoutAsync(userId, ct);
         return Ok(result);

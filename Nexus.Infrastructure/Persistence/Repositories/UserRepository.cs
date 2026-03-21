@@ -58,9 +58,9 @@ public class UserRepository(NexusDbContext context) : IUserRepository
         return await context.Users
             .AsNoTracking()
             .Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role)
-                    .ThenInclude(r => r.RolePermissions)
-                        .ThenInclude(rp => rp.Permission)
+            .ThenInclude(ur => ur.Role)
+            .ThenInclude(r => r.RolePermissions)
+            .ThenInclude(rp => rp.Permission)
             .FirstOrDefaultAsync(u => u.Username == username, ct);
     }
 
@@ -120,14 +120,16 @@ public class UserRepository(NexusDbContext context) : IUserRepository
         }
 
         if (companyId.HasValue)
+        {
             query = query.Where(u => u.CompanyId == companyId.Value);
+        }
 
         var totalCount = await query.CountAsync(ct);
 
         var items = await query
             .Include(u => u.Company)
             .Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role)
+            .ThenInclude(ur => ur.Role)
             .OrderBy(u => u.FullName)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

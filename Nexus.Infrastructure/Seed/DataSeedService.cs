@@ -15,39 +15,39 @@ public class DataSeedService(
 {
     private static readonly List<SeedAccessDto> AccessDefinitions =
     [
-        new SeedAccessDto("users.view", "Ver usuarios"),
-        new SeedAccessDto("users.manage", "Crear, editar y eliminar usuarios"),
-        new SeedAccessDto("roles.view", "Ver roles"),
-        new SeedAccessDto("roles.manage", "Crear, editar y eliminar roles"),
-        new SeedAccessDto("companies.view", "Ver compañías"),
-        new SeedAccessDto("companies.manage", "Crear, editar y eliminar compañías"),
-        new SeedAccessDto("customers.view", "Ver clientes"),
-        new SeedAccessDto("customers.manage", "Crear, editar y eliminar clientes"),
-        new SeedAccessDto("visits.view", "Ver visitas"),
-        new SeedAccessDto("visits.manage", "Crear y editar visitas"),
-        new SeedAccessDto("orders.view", "Ver pedidos"),
-        new SeedAccessDto("orders.manage", "Crear, editar y eliminar pedidos"),
-        new SeedAccessDto("payments.view", "Ver pagos"),
-        new SeedAccessDto("payments.manage", "Registrar y gestionar pagos"),
-        new SeedAccessDto("deliveries.view", "Ver entregas"),
-        new SeedAccessDto("deliveries.manage", "Gestionar entregas"),
-        new SeedAccessDto("products.view", "Ver productos"),
-        new SeedAccessDto("products.manage", "Crear, editar y eliminar productos"),
-        new SeedAccessDto("inventory.view", "Ver inventario"),
-        new SeedAccessDto("inventory.manage", "Ajustar inventario"),
-        new SeedAccessDto("warehouses.view", "Ver almacenes"),
-        new SeedAccessDto("warehouses.manage", "Gestionar almacenes"),
-        new SeedAccessDto("suppliers.view", "Ver proveedores"),
-        new SeedAccessDto("suppliers.manage", "Gestionar proveedores"),
-        new SeedAccessDto("reports.view", "Ver reportes"),
-        new SeedAccessDto("audit.view", "Ver logs de auditoría"),
-        new SeedAccessDto("accesses.view", "Ver permisos"),
-        new SeedAccessDto("accesses.manage", "Crear, editar y eliminar permisos")
+        new("users.view", "Ver usuarios"),
+        new("users.manage", "Crear, editar y eliminar usuarios"),
+        new("roles.view", "Ver roles"),
+        new("roles.manage", "Crear, editar y eliminar roles"),
+        new("companies.view", "Ver compañías"),
+        new("companies.manage", "Crear, editar y eliminar compañías"),
+        new("customers.view", "Ver clientes"),
+        new("customers.manage", "Crear, editar y eliminar clientes"),
+        new("visits.view", "Ver visitas"),
+        new("visits.manage", "Crear y editar visitas"),
+        new("orders.view", "Ver pedidos"),
+        new("orders.manage", "Crear, editar y eliminar pedidos"),
+        new("payments.view", "Ver pagos"),
+        new("payments.manage", "Registrar y gestionar pagos"),
+        new("deliveries.view", "Ver entregas"),
+        new("deliveries.manage", "Gestionar entregas"),
+        new("products.view", "Ver productos"),
+        new("products.manage", "Crear, editar y eliminar productos"),
+        new("inventory.view", "Ver inventario"),
+        new("inventory.manage", "Ajustar inventario"),
+        new("warehouses.view", "Ver almacenes"),
+        new("warehouses.manage", "Gestionar almacenes"),
+        new("suppliers.view", "Ver proveedores"),
+        new("suppliers.manage", "Gestionar proveedores"),
+        new("reports.view", "Ver reportes"),
+        new("audit.view", "Ver logs de auditoría"),
+        new("accesses.view", "Ver permisos"),
+        new("accesses.manage", "Crear, editar y eliminar permisos")
     ];
 
     private static readonly List<SeedRoleDto> RoleDefinitions =
     [
-        new SeedRoleDto(
+        new(
             "Admin",
             "Acceso total al sistema",
             [
@@ -81,7 +81,7 @@ public class DataSeedService(
                 "accesses.manage"
             ]
         ),
-        new SeedRoleDto(
+        new(
             "Manager",
             "Gestión operativa",
             [
@@ -104,7 +104,7 @@ public class DataSeedService(
                 "reports.view"
             ]
         ),
-        new SeedRoleDto(
+        new(
             "Sales",
             "Gestión de ventas y clientes",
             [
@@ -118,7 +118,7 @@ public class DataSeedService(
                 "deliveries.view"
             ]
         ),
-        new SeedRoleDto(
+        new(
             "Warehouse",
             "Gestión de inventario y entregas",
             [
@@ -135,7 +135,7 @@ public class DataSeedService(
                 "orders.view"
             ]
         ),
-        new SeedRoleDto(
+        new(
             "Finance",
             "Gestión financiera",
             ["orders.view", "payments.view", "payments.manage", "reports.view"]
@@ -226,7 +226,7 @@ public class DataSeedService(
         }
 
         var adminRole = await context.Roles.FirstAsync(r => r.Name == "Admin" && r.CompanyId == company.Id, ct);
-
+        var _password = Environment.GetEnvironmentVariable("NEXUS_ADMIN_PASSWORD") ?? "Admin123!";
         var adminUser = new User
         {
             Username = adminUsername,

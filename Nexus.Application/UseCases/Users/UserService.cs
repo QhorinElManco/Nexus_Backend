@@ -32,7 +32,8 @@ public class UserService(
         return Response<IReadOnlyList<UserDto>>.Ok(users.Select(MapToDto).ToList());
     }
 
-    public async Task<ResponsePagination<UserDto>> SearchAsync(UserSearchRequest request, CancellationToken ct = default)
+    public async Task<ResponsePagination<UserDto>> SearchAsync(UserSearchRequest request,
+        CancellationToken ct = default)
     {
         var validationResult = await searchValidator.ValidateAsync(request, ct);
         if (!validationResult.IsValid)
@@ -64,10 +65,14 @@ public class UserService(
 
         var companyExists = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
         if (companyExists is null)
+        {
             return Response<UserDto>.Fail("Company not found", ErrorCode.NotFound);
+        }
 
         if (await userRepository.ExistsByUsernameAsync(dto.Username, ct: ct))
+        {
             return Response<UserDto>.Fail("Username already exists", ErrorCode.Conflict);
+        }
 
         var user = new User
         {
@@ -94,7 +99,9 @@ public class UserService(
 
         var user = await userRepository.GetByIdAsync(id, ct);
         if (user is null)
+        {
             return Response<UserDto>.Fail("User not found", ErrorCode.NotFound);
+        }
 
         user.FullName = dto.FullName;
         user.IsActive = dto.IsActive;
@@ -109,7 +116,9 @@ public class UserService(
     {
         var user = await userRepository.GetByIdAsync(id, ct);
         if (user is null)
+        {
             return Response<bool>.Fail("User not found", ErrorCode.NotFound);
+        }
 
         await userRepository.DeleteAsync(id, ct);
         return Response<bool>.Ok(true);
@@ -124,7 +133,8 @@ public class UserService(
             : Response<UserDto>.Ok(MapToDto(user));
     }
 
-    public async Task<Response<IReadOnlyList<UserDto>>> GetByCompanyAsync(long companyId, CancellationToken ct = default)
+    public async Task<Response<IReadOnlyList<UserDto>>> GetByCompanyAsync(long companyId,
+        CancellationToken ct = default)
     {
         var users = await userRepository.GetByCompanyAsync(companyId, ct);
         return Response<IReadOnlyList<UserDto>>.Ok(users.Select(MapToDto).ToList());
@@ -134,20 +144,22 @@ public class UserService(
     {
         var user = await userRepository.GetByIdAsync(userId, ct);
         if (user is null)
+        {
             return Response<UserDto>.Fail("User not found", ErrorCode.NotFound);
+        }
 
         var role = await roleRepository.GetByIdAsync(dto.RoleId, ct);
         if (role is null)
+        {
             return Response<UserDto>.Fail("Role not found", ErrorCode.NotFound);
+        }
 
         if (await userRoleRepository.ExistsAsync(userId, dto.RoleId, ct))
-            return Response<UserDto>.Fail("User already has this role", ErrorCode.Conflict);
-
-        var userRole = new UserRole
         {
-            UserId = userId,
-            RoleId = dto.RoleId
-        };
+            return Response<UserDto>.Fail("User already has this role", ErrorCode.Conflict);
+        }
+
+        var userRole = new UserRole { UserId = userId, RoleId = dto.RoleId };
 
         await userRoleRepository.AddAsync(userRole, ct);
 
@@ -159,21 +171,26 @@ public class UserService(
     {
         var userRole = await userRoleRepository.GetAsync(userId, roleId, ct);
         if (userRole is null)
+        {
             return Response<bool>.Fail("User role assignment not found", ErrorCode.NotFound);
+        }
 
         await userRoleRepository.RemoveAsync(userId, roleId, ct);
         return Response<bool>.Ok(true);
     }
 
-    private static UserDto MapToDto(User user) => new(
-        user.Id,
-        user.Username,
-        user.FullName,
-        user.CompanyId,
-        user.Company?.Name ?? string.Empty,
-        user.IsActive,
-        user.UserRoles.Select(ur => new RoleDto(ur.Role.Id, ur.Role.Name, ur.Role.Description)).ToList(),
-        user.CreatedAt,
-        user.UpdatedAt
-    );
+    private static UserDto MapToDto(User user)
+    {
+        return new UserDto(
+            user.Id,
+            user.Username,
+            user.FullName,
+            user.CompanyId,
+            user.Company?.Name ?? string.Empty,
+            user.IsActive,
+            user.UserRoles.Select(ur => new RoleDto(ur.Role.Id, ur.Role.Name, ur.Role.Description)).ToList(),
+            user.CreatedAt,
+            user.UpdatedAt
+        );
+    }
 }

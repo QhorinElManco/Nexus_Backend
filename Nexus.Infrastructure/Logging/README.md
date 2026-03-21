@@ -1,4 +1,3 @@
-
 # Logging en Nexus.Infrastructure
 
 Este documento describe la implementación de logging en `Nexus.Infrastructure` usando Serilog.
@@ -21,7 +20,7 @@ Nexus.Infrastructure/
 │   ├── AppLogger.cs
 │   └── SerilogOptions.cs
 └── Persistence/
-    └── NexosDbContext.cs
+    └── NexusDbContext.cs
 ```
 
 ## Qué hace LoggingExtensions
@@ -37,6 +36,7 @@ encapsuladas en `LoggingExtensions.cs`.
 ## Opciones (SerilogOptions)
 
 Contiene las clases de configuración que se leen desde `appsettings.json`:
+
 - `SerilogOptions` (raiz)
 - `SerilogConsoleOptions`
 - `SerilogFileOptions`
@@ -46,19 +46,32 @@ Ejemplo (resumido) en `appsettings.json`:
 
 ```json
 {
-  "Serilog": {
-    "MinimumLevel": "Information",
-    "Override": { "Microsoft": "Warning", "System": "Warning" },
-    "Console": { "Enabled": true },
-    "File": { "Enabled": true, "Path": "logs/log-.txt" },
-    "PostgreSql": { "Enabled": true, "ConnectionStringName": "DefaultConnection", "TableName": "logs" }
-  }
+    "Serilog": {
+        "MinimumLevel": "Information",
+        "Override": {
+            "Microsoft": "Warning",
+            "System": "Warning"
+        },
+        "Console": {
+            "Enabled": true
+        },
+        "File": {
+            "Enabled": true,
+            "Path": "logs/log-.txt"
+        },
+        "PostgreSql": {
+            "Enabled": true,
+            "ConnectionStringName": "DefaultConnection",
+            "TableName": "logs"
+        }
+    }
 }
 ```
 
 ## AppLogger<T>
 
-`IAppLogger<T>` es una interfaz ligera para exponer logging tipado; `AppLogger<T>` es su implementación basada en Serilog.
+`IAppLogger<T>` es una interfaz ligera para exponer logging tipado; `AppLogger<T>` es su implementación basada en
+Serilog.
 Se inyecta donde se requiera para obtener contexto de tipo automáticamente.
 
 Ejemplo de uso:

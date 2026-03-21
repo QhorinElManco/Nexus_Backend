@@ -18,8 +18,8 @@ public static class ResponseExtensions
     {
         var errorDetails = validationResult.Errors
             .Select(f => new ErrorDetail(
-                Property: f.PropertyName,
-                Message: f.ErrorMessage))
+                f.PropertyName,
+                f.ErrorMessage))
             .ToList();
 
         errorMessage ??= "Validation failed";
@@ -37,8 +37,8 @@ public static class ResponseExtensions
     {
         var errorDetails = validationResult.Errors
             .Select(f => new ErrorDetail(
-                Property: f.PropertyName,
-                Message: f.ErrorMessage))
+                f.PropertyName,
+                f.ErrorMessage))
             .ToList();
 
         errorMessage ??= "Validation failed";

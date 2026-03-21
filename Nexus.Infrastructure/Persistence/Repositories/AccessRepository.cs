@@ -18,7 +18,7 @@ public class AccessRepository(NexusDbContext context) : IAccessRepository
         return await context.Permissions
             .AsNoTracking()
             .Include(a => a.RolePermissions)
-                .ThenInclude(rp => rp.Role)
+            .ThenInclude(rp => rp.Role)
             .FirstOrDefaultAsync(a => a.Id == id, ct);
     }
 
@@ -60,7 +60,9 @@ public class AccessRepository(NexusDbContext context) : IAccessRepository
         var query = context.Permissions.Where(a => a.Name == name);
 
         if (excludeId.HasValue)
+        {
             query = query.Where(a => a.Id != excludeId.Value);
+        }
 
         return await query.AnyAsync(ct);
     }
