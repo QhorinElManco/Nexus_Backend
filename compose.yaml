@@ -1,9 +1,9 @@
 ﻿services:
-  nexos.services.webapi:
-    image: nexos.services.webapi
+  nexus.services.webapi:
+    image: nexus.services.webapi
     build:
       context: .
-      dockerfile: Nexos.Services.WebApi/Dockerfile
+      dockerfile: nexus.Services.WebApi/Dockerfile
     depends_on:
       postgres:
         condition: service_healthy
@@ -11,11 +11,11 @@
       - ASPNETCORE_ENVIRONMENT=Docker
       - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
     networks:
-      - nexos-network
+      - nexus-network
 
   postgres:
     image: postgres:18-alpine
-    container_name: nexos-postgres
+    container_name: nexus-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -31,10 +31,10 @@
       retries: 5
       start_period: 30s
     networks:
-      - nexos-network
+      - nexus-network
 
 networks:
-  nexos-network:
+  nexus-network:
     driver: bridge
 
 volumes:
