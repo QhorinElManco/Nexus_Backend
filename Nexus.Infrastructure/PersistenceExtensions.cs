@@ -6,6 +6,7 @@ using Nexus.Application.Interfaces.Repositories;
 using Nexus.Application.Interfaces.UseCases;
 using Nexus.Infrastructure.Persistence;
 using Nexus.Infrastructure.Persistence.Repositories;
+using Nexus.Infrastructure.Seed;
 using Nexus.Infrastructure.Services;
 
 namespace Nexus.Infrastructure;
@@ -32,14 +33,17 @@ internal static class PersistenceExtensions
             }
         });
 
+        services.AddScoped<IAccessRepository, AccessRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IDataSeedService, DataSeedService>();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<SeedDataSettings>(configuration.GetSection(SeedDataSettings.SectionName));
 
         services.AddHealthChecks()
             .AddDbContextCheck<NexosDbContext>("database");
