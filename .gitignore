@@ -348,6 +348,7 @@ Desktop.ini
 *~
 
 # Environment files
+.envrc
 .env
 .env.local
 .env.*.local
