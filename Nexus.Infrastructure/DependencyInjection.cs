@@ -1,15 +1,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nexus.Application.Interfaces.UseCases;
 
 namespace Nexus.Infrastructure;
 
 public static class DependencyInjection
 {
-    /// <summary>
-    /// Punto de entrada único de la capa Infrastructure.
-    /// Registra todos los servicios de persistencia y logging transversal.
-    /// </summary>
     public static IServiceCollection AddInfrastructureServices(
         this IServiceCollection services,
         IConfiguration configuration,
@@ -17,6 +14,8 @@ public static class DependencyInjection
     {
         services.AddPersistenceServices(configuration, environment);
         services.AddTransversalLoggingServices(configuration);
+
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
         return services;
     }

@@ -3,8 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nexus.Application.Interfaces.Repositories;
+using Nexus.Application.Interfaces.UseCases;
 using Nexus.Infrastructure.Persistence;
 using Nexus.Infrastructure.Persistence.Repositories;
+using Nexus.Infrastructure.Services;
 
 namespace Nexus.Infrastructure;
 
@@ -22,10 +24,7 @@ internal static class PersistenceExtensions
         services.AddDbContext<NexosDbContext>(options =>
         {
             options.UseNpgsql(connectionString);
-            // TODO: Habilitar el interceptor cuando ya tengamos compania y autenticación de usuarios
-            // options.AddInterceptors(new SaveChangesInterceptor());
 
-            // Habilitar el registro de datos sensibles solo en desarrollo
             if (environment.IsDevelopment())
             {
                 options.EnableSensitiveDataLogging();
@@ -33,10 +32,15 @@ internal static class PersistenceExtensions
             }
         });
 
-        // Repositories
         services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 
-        // Registro de la base de datos de revisión de salud
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+
         services.AddHealthChecks()
             .AddDbContextCheck<NexosDbContext>("database");
 

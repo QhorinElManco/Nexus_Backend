@@ -7,22 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\"/>
-    <Folder Include="Interfaces\"/>
-    <Folder Include="UseCases\"/>
-    <Folder Include="Validators\"/>
+    <Folder Include="Dto\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="UseCases\" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation"/>
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration"/>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nexus.Domain\Nexus.Domain.csproj"/>
+    <ProjectReference Include="..\Nexus.Domain\Nexus.Domain.csproj" />
   </ItemGroup>
 
 </Project>
