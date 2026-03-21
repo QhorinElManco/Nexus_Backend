@@ -10,14 +10,13 @@ public class CompanyRepository(NexosDbContext context) : ICompanyRepository
     {
         return await context.Companies
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
+            .FirstOrDefaultAsync(c => c.Id == id, ct);
     }
 
     public async Task<IReadOnlyList<Company>> GetAllAsync(CancellationToken ct = default)
     {
         return await context.Companies
             .AsNoTracking()
-            .Where(c => !c.IsDeleted)
             .OrderBy(c => c.Name)
             .ToListAsync(ct);
     }
@@ -28,8 +27,7 @@ public class CompanyRepository(NexosDbContext context) : ICompanyRepository
         int pageSize,
         CancellationToken ct = default)
     {
-        var query = context.Companies.AsNoTracking()
-            .Where(c => !c.IsDeleted);
+        var query = context.Companies.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -77,6 +75,6 @@ public class CompanyRepository(NexosDbContext context) : ICompanyRepository
 
     public async Task<bool> ExistsByTaxIdAsync(string taxId, CancellationToken ct = default)
     {
-        return await context.Companies.AnyAsync(c => c.TaxId == taxId && !c.IsDeleted, ct);
+        return await context.Companies.AnyAsync(c => c.TaxId == taxId, ct);
     }
 }
