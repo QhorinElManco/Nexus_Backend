@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Interfaces.UseCases;
 
@@ -8,6 +9,7 @@ namespace Nexus.Api.Controllers;
 public class InternalController(IDataSeedService dataSeedService) : ControllerBase
 {
     [HttpPost("seed")]
+    [Authorize(Policy = "companies.manage")]
     public async Task<IActionResult> Seed(CancellationToken ct = default)
     {
         try

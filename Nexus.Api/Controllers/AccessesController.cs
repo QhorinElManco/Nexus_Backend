@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Access;
 using Nexus.Application.Dto.Response;
@@ -10,6 +11,7 @@ namespace Nexus.Api.Controllers;
 public class AccessesController(IAccessService accessService) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "accesses.view")]
     public async Task<ActionResult<Response<IReadOnlyList<AccessDto>>>> GetAll(CancellationToken ct = default)
     {
         var result = await accessService.GetAllAsync(ct);
@@ -17,6 +19,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
     }
 
     [HttpGet("{id:long}")]
+    [Authorize(Policy = "accesses.view")]
     public async Task<ActionResult<Response<AccessDto>>> GetById(long id, CancellationToken ct = default)
     {
         var result = await accessService.GetByIdAsync(id, ct);
@@ -24,6 +27,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "accesses.manage")]
     public async Task<ActionResult<Response<AccessDto>>> Create([FromBody] CreateAccessDto dto,
         CancellationToken ct = default)
     {
@@ -34,6 +38,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
     }
 
     [HttpPut("{id:long}")]
+    [Authorize(Policy = "accesses.manage")]
     public async Task<ActionResult<Response<AccessDto>>> Update(long id, [FromBody] UpdateAccessDto dto,
         CancellationToken ct = default)
     {
@@ -42,6 +47,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
+    [Authorize(Policy = "accesses.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
         var result = await accessService.DeleteAsync(id, ct);

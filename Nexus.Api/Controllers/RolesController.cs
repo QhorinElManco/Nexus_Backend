@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Dto.Roles;
@@ -10,6 +11,7 @@ namespace Nexus.Api.Controllers;
 public class RolesController(IRoleService roleService) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "roles.view")]
     public async Task<ActionResult<Response<IReadOnlyList<RoleDto>>>> GetAll(CancellationToken ct = default)
     {
         var result = await roleService.GetAllAsync(ct);
@@ -17,6 +19,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
     }
 
     [HttpGet("{id:long}")]
+    [Authorize(Policy = "roles.view")]
     public async Task<ActionResult<Response<RoleDto>>> GetById(long id, CancellationToken ct = default)
     {
         var result = await roleService.GetByIdAsync(id, ct);
@@ -24,6 +27,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
     }
 
     [HttpGet("company/{companyId:long}")]
+    [Authorize(Policy = "roles.view")]
     public async Task<ActionResult<Response<IReadOnlyList<RoleDto>>>> GetByCompany(long companyId,
         CancellationToken ct = default)
     {
@@ -32,6 +36,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "roles.manage")]
     public async Task<ActionResult<Response<RoleDto>>> Create([FromBody] CreateRoleDto dto,
         CancellationToken ct = default)
     {
@@ -42,6 +47,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
     }
 
     [HttpPut("{id:long}")]
+    [Authorize(Policy = "roles.manage")]
     public async Task<ActionResult<Response<RoleDto>>> Update(long id, [FromBody] UpdateRoleDto dto,
         CancellationToken ct = default)
     {
@@ -50,6 +56,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
+    [Authorize(Policy = "roles.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
         var result = await roleService.DeleteAsync(id, ct);

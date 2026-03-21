@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Companies;
 using Nexus.Application.Dto.Response;
@@ -11,6 +12,7 @@ public class CompaniesController(
     ICompanyService companyService) : ControllerBase
 {
     [HttpGet("{id:long}")]
+    [Authorize(Policy = "companies.view")]
     public async Task<ActionResult<Response<CompanyDto>>> GetById(long id, CancellationToken ct = default)
     {
         var result = await companyService.GetByIdAsync(id, ct);
@@ -18,6 +20,7 @@ public class CompaniesController(
     }
 
     [HttpGet]
+    [Authorize(Policy = "companies.view")]
     public async Task<ActionResult<Response<IReadOnlyList<CompanyDto>>>> GetAll(CancellationToken ct = default)
     {
         var result = await companyService.GetAllAsync(ct);
@@ -25,6 +28,7 @@ public class CompaniesController(
     }
 
     [HttpGet("search")]
+    [Authorize(Policy = "companies.view")]
     public async Task<ActionResult<ResponsePagination<CompanyDto>>> Search([FromQuery] CompanySearchRequest request,
         CancellationToken ct = default)
     {
@@ -33,6 +37,7 @@ public class CompaniesController(
     }
 
     [HttpPost]
+    [Authorize(Policy = "companies.manage")]
     public async Task<ActionResult<Response<CompanyDto>>> Create([FromBody] CreateCompanyDto dto,
         CancellationToken ct = default)
     {
@@ -43,6 +48,7 @@ public class CompaniesController(
     }
 
     [HttpPut("{id:long}")]
+    [Authorize(Policy = "companies.manage")]
     public async Task<ActionResult<Response<CompanyDto>>> Update(long id, [FromBody] UpdateCompanyDto dto,
         CancellationToken ct = default)
     {
@@ -51,6 +57,7 @@ public class CompaniesController(
     }
 
     [HttpDelete("{id:long}")]
+    [Authorize(Policy = "companies.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
         var result = await companyService.DeleteAsync(id, ct);
