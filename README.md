@@ -37,7 +37,8 @@ capas.
 
 ## Arquitectura
 
-Este proyecto sigue **Arquitectura Limpia** (también conocida como Arquitectura Onion o Hexagonal) con las siguientes capas:
+Este proyecto sigue **Arquitectura Limpia** (también conocida como Arquitectura Onion o Hexagonal) con las siguientes
+capas:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -166,12 +167,12 @@ Nexus_Backend/
 
 ### Responsabilidades de las Capas
 
-| Capa               | Responsabilidad                                    | Dependencias         |
-|--------------------|----------------------------------------------------|----------------------|
-| **Domain**         | Lógica de negocio core, entidades                  | Ninguna              |
-| **Application**    | Casos de uso, DTOs, interfaces de servicios        | Domain               |
-| **Infrastructure** | Implementaciones de repositorios, servicios       | Domain, Application |
-| **Api**            | Controladores API, middleware, configuración       | Todas las capas      |
+| Capa               | Responsabilidad                              | Dependencias        |
+|--------------------|----------------------------------------------|---------------------|
+| **Domain**         | Lógica de negocio core, entidades            | Ninguna             |
+| **Application**    | Casos de uso, DTOs, interfaces de servicios  | Domain              |
+| **Infrastructure** | Implementaciones de repositorios, servicios  | Domain, Application |
+| **Api**            | Controladores API, middleware, configuración | Todas las capas     |
 
 ## Guía de Desarrollo
 
@@ -540,17 +541,17 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## Referencia Rápida
 
-| Tarea               | Comando                                      |
-|---------------------|----------------------------------------------|
-| Restaurar paquetes  | `dotnet restore`                             |
-| Construir solución  | `dotnet build`                               |
-| Ejecutar aplicación | `dotnet run --project Nexus.Api`            |
-| Ejecutar pruebas    | `dotnet test`                                |
-| Limpiar artefactos  | `dotnet clean`                               |
-| Formatear código    | `dotnet format`                              |
-| Construir docker    | `docker build -t nexus-backend .`           |
-| Docker compose up   | `docker compose up -d`                       |
-| Aplicar migraciones | `dotnet ef database update`                 |
+| Tarea               | Comando                           |
+|---------------------|-----------------------------------|
+| Restaurar paquetes  | `dotnet restore`                  |
+| Construir solución  | `dotnet build`                    |
+| Ejecutar aplicación | `dotnet run --project Nexus.Api`  |
+| Ejecutar pruebas    | `dotnet test`                     |
+| Limpiar artefactos  | `dotnet clean`                    |
+| Formatear código    | `dotnet format`                   |
+| Construir docker    | `docker build -t nexus-backend .` |
+| Docker compose up   | `docker compose up -d`            |
+| Aplicar migraciones | `dotnet ef database update`       |
 
 ---
 
