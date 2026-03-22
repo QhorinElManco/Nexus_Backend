@@ -44,6 +44,8 @@ builder.Services.AddOpenApi("v1", options =>
 });
 
 builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("customers.view", p => p.RequireClaim("permission", "customers.view"))
+    .AddPolicy("customers.manage", p => p.RequireClaim("permission", "customers.manage"))
     .AddPolicy("users.view", p => p.RequireClaim("permission", "users.view"))
     .AddPolicy("users.manage", p => p.RequireClaim("permission", "users.manage"))
     .AddPolicy("roles.view", p => p.RequireClaim("permission", "roles.view"))
