@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Dto.Users;
 using Nexus.Application.Interfaces.UseCases;
+using Nexus.Api.Extensions;
 
 namespace Nexus.Api.Controllers;
 
@@ -15,7 +16,7 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<IReadOnlyList<UserDto>>>> GetAll(CancellationToken ct = default)
     {
         var result = await userService.GetAllAsync(ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("{id:long}")]
@@ -23,7 +24,7 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<UserDto>>> GetById(long id, CancellationToken ct = default)
     {
         var result = await userService.GetByIdAsync(id, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("search")]
@@ -32,7 +33,7 @@ public class UsersController(IUserService userService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await userService.SearchAsync(request, ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("username/{username}")]
@@ -40,7 +41,7 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<UserDto>>> GetByUsername(string username, CancellationToken ct = default)
     {
         var result = await userService.GetByUsernameAsync(username, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("company/{companyId:long}")]
@@ -49,7 +50,7 @@ public class UsersController(IUserService userService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await userService.GetByCompanyAsync(companyId, ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpPost]
@@ -58,9 +59,7 @@ public class UsersController(IUserService userService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await userService.CreateAsync(dto, ct);
-        return result.Success
-            ? CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result)
-            : Conflict(result);
+        return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
     [HttpPut("{id:long}")]
@@ -69,7 +68,7 @@ public class UsersController(IUserService userService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await userService.UpdateAsync(id, dto, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpDelete("{id:long}")]
@@ -77,7 +76,7 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
         var result = await userService.DeleteAsync(id, ct);
-        return result.Success ? NoContent() : NotFound(result);
+        return result.ToNoContentResult();
     }
 
     [HttpPost("{id:long}/roles")]
@@ -86,7 +85,7 @@ public class UsersController(IUserService userService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await userService.AssignRoleAsync(id, dto, ct);
-        return result.Success ? Ok(result) : Conflict(result);
+        return result.ToActionResult();
     }
 
     [HttpDelete("{id:long}/roles/{roleId:long}")]
@@ -94,6 +93,6 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<bool>>> RemoveRole(long id, long roleId, CancellationToken ct = default)
     {
         var result = await userService.RemoveRoleAsync(id, roleId, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 }

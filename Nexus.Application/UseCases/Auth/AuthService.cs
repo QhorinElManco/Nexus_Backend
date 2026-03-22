@@ -34,7 +34,7 @@ public class AuthService(
 
         if (user is null || !user.IsActive || !passwordHasher.Verify(request.Password, user.PasswordHash))
         {
-            return Response<LoginResultDto>.Fail("Invalid credentials", ErrorCode.UnauthorizedAccess);
+            return Response<LoginResultDto>.Fail("Invalid credentials", ErrorCode.Unauthorized);
         }
 
         var accessToken = GenerateAccessToken(user);
@@ -63,19 +63,19 @@ public class AuthService(
 
         if (principal is null)
         {
-            return Response<LoginResultDto>.Fail("Invalid token", ErrorCode.UnauthorizedAccess);
+            return Response<LoginResultDto>.Fail("Invalid token", ErrorCode.Unauthorized);
         }
 
         var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!long.TryParse(userIdClaim, out _))
         {
-            return Response<LoginResultDto>.Fail("Invalid token", ErrorCode.UnauthorizedAccess);
+            return Response<LoginResultDto>.Fail("Invalid token", ErrorCode.Unauthorized);
         }
 
         var user = await userRepository.GetByUsernameWithRolesAsync(principal.Identity?.Name ?? string.Empty, ct);
         if (user is null || !user.IsActive)
         {
-            return Response<LoginResultDto>.Fail("User not found or inactive", ErrorCode.UnauthorizedAccess);
+            return Response<LoginResultDto>.Fail("User not found or inactive", ErrorCode.Unauthorized);
         }
 
         var newAccessToken = GenerateAccessToken(user);

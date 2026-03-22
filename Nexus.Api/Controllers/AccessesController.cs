@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Access;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Interfaces.UseCases;
+using Nexus.Api.Extensions;
 
 namespace Nexus.Api.Controllers;
 
@@ -15,7 +16,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
     public async Task<ActionResult<Response<IReadOnlyList<AccessDto>>>> GetAll(CancellationToken ct = default)
     {
         var result = await accessService.GetAllAsync(ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("{id:long}")]
@@ -23,7 +24,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
     public async Task<ActionResult<Response<AccessDto>>> GetById(long id, CancellationToken ct = default)
     {
         var result = await accessService.GetByIdAsync(id, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpPost]
@@ -32,9 +33,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await accessService.CreateAsync(dto, ct);
-        return result.Success
-            ? CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result)
-            : Conflict(result);
+        return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
     [HttpPut("{id:long}")]
@@ -43,7 +42,7 @@ public class AccessesController(IAccessService accessService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await accessService.UpdateAsync(id, dto, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpDelete("{id:long}")]
@@ -51,6 +50,6 @@ public class AccessesController(IAccessService accessService) : ControllerBase
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
         var result = await accessService.DeleteAsync(id, ct);
-        return result.Success ? NoContent() : NotFound(result);
+        return result.ToNoContentResult();
     }
 }

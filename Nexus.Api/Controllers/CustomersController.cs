@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Customers;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Interfaces.UseCases;
+using Nexus.Api.Extensions;
 
 namespace Nexus.Api.Controllers;
 
@@ -15,7 +16,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     public async Task<ActionResult<Response<IReadOnlyList<CustomerDto>>>> GetAll(CancellationToken ct = default)
     {
         var result = await customerService.GetAllAsync(ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("{id:long}")]
@@ -23,7 +24,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     public async Task<ActionResult<Response<CustomerDto>>> GetById(long id, CancellationToken ct = default)
     {
         var result = await customerService.GetByIdAsync(id, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("search")]
@@ -32,7 +33,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
         CancellationToken ct = default)
     {
         var result = await customerService.SearchAsync(request, ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("taxid/{taxId}")]
@@ -40,7 +41,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     public async Task<ActionResult<Response<CustomerDto>>> GetByTaxId(string taxId, CancellationToken ct = default)
     {
         var result = await customerService.GetByTaxIdAsync(taxId, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("company/{companyId:long}")]
@@ -49,7 +50,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
         CancellationToken ct = default)
     {
         var result = await customerService.GetByCompanyAsync(companyId, ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpPost]
@@ -58,9 +59,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
         CancellationToken ct = default)
     {
         var result = await customerService.CreateAsync(dto, ct);
-        return result.Success
-            ? CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result)
-            : Conflict(result);
+        return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
     [HttpPut("{id:long}")]
@@ -69,7 +68,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
         CancellationToken ct = default)
     {
         var result = await customerService.UpdateAsync(id, dto, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpDelete("{id:long}")]
@@ -77,6 +76,6 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
         var result = await customerService.DeleteAsync(id, ct);
-        return result.Success ? NoContent() : NotFound(result);
+        return result.ToNoContentResult();
     }
 }

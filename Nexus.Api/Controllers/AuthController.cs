@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Auth;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Interfaces.UseCases;
+using Nexus.Api.Extensions;
 
 namespace Nexus.Api.Controllers;
 
@@ -16,7 +17,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await authService.LoginAsync(request, ct);
-        return result.Success ? Ok(result) : Unauthorized(result);
+        return result.ToActionResult();
     }
 
     [HttpPost("refresh")]
@@ -25,7 +26,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await authService.RefreshTokenAsync(request, ct);
-        return result.Success ? Ok(result) : Unauthorized(result);
+        return result.ToActionResult();
     }
 
     [HttpPost("logout")]
@@ -35,10 +36,10 @@ public class AuthController(IAuthService authService) : ControllerBase
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var userId))
         {
-            return Unauthorized(Response<bool>.Fail("Invalid token", ErrorCode.UnauthorizedAccess));
+            return Response<bool>.Fail("Invalid token", ErrorCode.Unauthorized).ToActionResult();
         }
 
         var result = await authService.LogoutAsync(userId, ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 }

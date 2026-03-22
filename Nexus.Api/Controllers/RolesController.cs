@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Dto.Roles;
 using Nexus.Application.Interfaces.UseCases;
+using Nexus.Api.Extensions;
 
 namespace Nexus.Api.Controllers;
 
@@ -15,7 +16,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
     public async Task<ActionResult<Response<IReadOnlyList<RoleDto>>>> GetAll(CancellationToken ct = default)
     {
         var result = await roleService.GetAllAsync(ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("{id:long}")]
@@ -23,7 +24,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
     public async Task<ActionResult<Response<RoleDto>>> GetById(long id, CancellationToken ct = default)
     {
         var result = await roleService.GetByIdAsync(id, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpGet("company/{companyId:long}")]
@@ -32,7 +33,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await roleService.GetByCompanyAsync(companyId, ct);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpPost]
@@ -41,9 +42,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await roleService.CreateAsync(dto, ct);
-        return result.Success
-            ? CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result)
-            : Conflict(result);
+        return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
     [HttpPut("{id:long}")]
@@ -52,7 +51,7 @@ public class RolesController(IRoleService roleService) : ControllerBase
         CancellationToken ct = default)
     {
         var result = await roleService.UpdateAsync(id, dto, ct);
-        return result.Success ? Ok(result) : NotFound(result);
+        return result.ToActionResult();
     }
 
     [HttpDelete("{id:long}")]
@@ -60,6 +59,6 @@ public class RolesController(IRoleService roleService) : ControllerBase
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
         var result = await roleService.DeleteAsync(id, ct);
-        return result.Success ? NoContent() : NotFound(result);
+        return result.ToNoContentResult();
     }
 }
