@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Nexus.Application.Dto.Companies;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Interfaces.Repositories;
@@ -11,7 +12,8 @@ public class CompanyService(
     ICompanyRepository repository,
     IValidator<CreateCompanyDto> createValidator,
     IValidator<UpdateCompanyDto> updateValidator,
-    IValidator<CompanySearchRequest> searchValidator) : ICompanyService
+    IValidator<CompanySearchRequest> searchValidator,
+    ILogger<CompanyService> logger) : ICompanyService
 {
     public async Task<Response<CompanyDto>> GetByIdAsync(long id, CancellationToken ct = default)
     {
@@ -60,11 +62,15 @@ public class CompanyService(
 
         if (await repository.ExistsByTaxIdAsync(dto.TaxId, ct))
         {
+            logger.LogWarning("Create company failed: TaxId already exists [{TaxId}]", dto.TaxId);
             return Response<CompanyDto>.Fail("A company with this TaxId already exists", ErrorCode.Conflict);
         }
 
         var company = new Company { Name = dto.Name, TaxId = dto.TaxId, IsActive = true };
         var created = await repository.AddAsync(company, ct);
+
+        logger.LogInformation("Company created [{CompanyId}] [{Name}] [{TaxId}]", created.Id, created.Name, created.TaxId);
+
         return Response<CompanyDto>.Ok(MapToDto(created), "Company created successfully");
     }
 
@@ -80,6 +86,7 @@ public class CompanyService(
         var company = await repository.GetByIdAsync(id, ct);
         if (company is null)
         {
+            logger.LogWarning("Update company failed: company not found [{CompanyId}]", id);
             return Response<CompanyDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
@@ -87,6 +94,9 @@ public class CompanyService(
         company.IsActive = dto.IsActive;
 
         await repository.UpdateAsync(company, ct);
+
+        logger.LogInformation("Company updated [{CompanyId}] [{Name}]", id, company.Name);
+
         return Response<CompanyDto>.Ok(MapToDto(company), "Company updated successfully");
     }
 
@@ -95,10 +105,14 @@ public class CompanyService(
         var company = await repository.GetByIdAsync(id, ct);
         if (company is null)
         {
+            logger.LogWarning("Delete company failed: company not found [{CompanyId}]", id);
             return Response<bool>.Fail("Company not found", ErrorCode.NotFound);
         }
 
         await repository.DeleteAsync(id, ct);
+
+        logger.LogInformation("Company deleted (soft-delete) [{CompanyId}] [{Name}]", id, company.Name);
+
         return Response<bool>.Ok(true, "Company deleted successfully");
     }
 

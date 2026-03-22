@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Dto.Roles;
 using Nexus.Application.Interfaces.Repositories;
@@ -11,7 +12,8 @@ public class RoleService(
     IRoleRepository roleRepository,
     ICompanyRepository companyRepository,
     IValidator<CreateRoleDto> createValidator,
-    IValidator<UpdateRoleDto> updateValidator) : IRoleService
+    IValidator<UpdateRoleDto> updateValidator,
+    ILogger<RoleService> logger) : IRoleService
 {
     public async Task<Response<RoleDto>> GetByIdAsync(long id, CancellationToken ct = default)
     {
@@ -46,11 +48,13 @@ public class RoleService(
         var companyExists = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
         if (companyExists is null)
         {
+            logger.LogWarning("Create role failed: company not found [{CompanyId}]", dto.CompanyId);
             return Response<RoleDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
         if (await roleRepository.ExistsByNameAsync(dto.Name, dto.CompanyId, ct: ct))
         {
+            logger.LogWarning("Create role failed: role name already exists [{RoleName}] in company [{CompanyId}]", dto.Name, dto.CompanyId);
             return Response<RoleDto>.Fail("A role with this name already exists in this company", ErrorCode.Conflict);
         }
 
@@ -59,6 +63,9 @@ public class RoleService(
         var created = await roleRepository.AddAsync(role, ct);
 
         var roleWithPermissions = await roleRepository.GetByIdWithPermissionsAsync(created.Id, ct);
+
+        logger.LogInformation("Role created [{RoleId}] [{RoleName}] [{CompanyId}]", created.Id, created.Name, created.CompanyId);
+
         return Response<RoleDto>.Ok(MapToDto(roleWithPermissions!));
     }
 
@@ -73,11 +80,13 @@ public class RoleService(
         var role = await roleRepository.GetByIdAsync(id, ct);
         if (role is null)
         {
+            logger.LogWarning("Update role failed: role not found [{RoleId}]", id);
             return Response<RoleDto>.Fail("Role not found", ErrorCode.NotFound);
         }
 
         if (await roleRepository.ExistsByNameAsync(dto.Name, role.CompanyId, id, ct))
         {
+            logger.LogWarning("Update role failed: role name already exists [{RoleName}] in company [{CompanyId}]", dto.Name, role.CompanyId);
             return Response<RoleDto>.Fail("A role with this name already exists in this company", ErrorCode.Conflict);
         }
 
@@ -87,6 +96,9 @@ public class RoleService(
         await roleRepository.UpdateAsync(role, ct);
 
         var roleWithPermissions = await roleRepository.GetByIdWithPermissionsAsync(id, ct);
+
+        logger.LogInformation("Role updated [{RoleId}] [{RoleName}]", id, role.Name);
+
         return Response<RoleDto>.Ok(MapToDto(roleWithPermissions!));
     }
 
@@ -95,10 +107,14 @@ public class RoleService(
         var role = await roleRepository.GetByIdAsync(id, ct);
         if (role is null)
         {
+            logger.LogWarning("Delete role failed: role not found [{RoleId}]", id);
             return Response<bool>.Fail("Role not found", ErrorCode.NotFound);
         }
 
         await roleRepository.DeleteAsync(id, ct);
+
+        logger.LogInformation("Role deleted (soft-delete) [{RoleId}] [{RoleName}]", id, role.Name);
+
         return Response<bool>.Ok(true);
     }
 

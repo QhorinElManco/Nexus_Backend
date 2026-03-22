@@ -1,16 +1,17 @@
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Nexus.Application.Dto.Access;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Interfaces.Repositories;
 using Nexus.Application.Interfaces.UseCases;
-using Nexus.Domain.Entities.Security;
 
 namespace Nexus.Application.UseCases.Access;
 
 public class AccessService(
     IAccessRepository accessRepository,
     IValidator<CreateAccessDto> createValidator,
-    IValidator<UpdateAccessDto> updateValidator) : IAccessService
+    IValidator<UpdateAccessDto> updateValidator,
+    ILogger<AccessService> logger) : IAccessService
 {
     public async Task<Response<AccessDto>> GetByIdAsync(long id, CancellationToken ct = default)
     {
@@ -37,6 +38,7 @@ public class AccessService(
 
         if (await accessRepository.ExistsByNameAsync(dto.Name, ct: ct))
         {
+            logger.LogWarning("Create access failed: access name already exists [{AccessName}]", dto.Name);
             return Response<AccessDto>.Fail("An access with this name already exists", ErrorCode.Conflict);
         }
 
@@ -45,6 +47,9 @@ public class AccessService(
         var created = await accessRepository.AddAsync(access, ct);
 
         var accessWithRoles = await accessRepository.GetByIdWithRolesAsync(created.Id, ct);
+
+        logger.LogInformation("Access created [{AccessId}] [{AccessName}]", created.Id, created.Name);
+
         return Response<AccessDto>.Ok(MapToDto(accessWithRoles!));
     }
 
@@ -59,11 +64,13 @@ public class AccessService(
         var access = await accessRepository.GetByIdAsync(id, ct);
         if (access is null)
         {
+            logger.LogWarning("Update access failed: access not found [{AccessId}]", id);
             return Response<AccessDto>.Fail("Access not found", ErrorCode.NotFound);
         }
 
         if (await accessRepository.ExistsByNameAsync(dto.Name, id, ct))
         {
+            logger.LogWarning("Update access failed: access name already exists [{AccessName}]", dto.Name);
             return Response<AccessDto>.Fail("An access with this name already exists", ErrorCode.Conflict);
         }
 
@@ -73,6 +80,9 @@ public class AccessService(
         await accessRepository.UpdateAsync(access, ct);
 
         var accessWithRoles = await accessRepository.GetByIdWithRolesAsync(id, ct);
+
+        logger.LogInformation("Access updated [{AccessId}] [{AccessName}]", id, access.Name);
+
         return Response<AccessDto>.Ok(MapToDto(accessWithRoles!));
     }
 
@@ -81,10 +91,14 @@ public class AccessService(
         var access = await accessRepository.GetByIdAsync(id, ct);
         if (access is null)
         {
+            logger.LogWarning("Delete access failed: access not found [{AccessId}]", id);
             return Response<bool>.Fail("Access not found", ErrorCode.NotFound);
         }
 
         await accessRepository.DeleteAsync(id, ct);
+
+        logger.LogInformation("Access deleted (soft-delete) [{AccessId}] [{AccessName}]", id, access.Name);
+
         return Response<bool>.Ok(true);
     }
 

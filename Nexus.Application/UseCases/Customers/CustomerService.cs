@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Nexus.Application.Dto.Customers;
 using Nexus.Application.Dto.Response;
 using Nexus.Application.Interfaces.Repositories;
@@ -12,7 +13,8 @@ public class CustomerService(
     ICompanyRepository companyRepository,
     IValidator<CreateCustomerDto> createValidator,
     IValidator<UpdateCustomerDto> updateValidator,
-    IValidator<CustomerSearchRequest> searchValidator) : ICustomerService
+    IValidator<CustomerSearchRequest> searchValidator,
+    ILogger<CustomerService> logger) : ICustomerService
 {
     public async Task<Response<CustomerDto>> GetByIdAsync(long id, CancellationToken ct = default)
     {
@@ -57,11 +59,13 @@ public class CustomerService(
         var companyExists = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
         if (companyExists is null)
         {
+            logger.LogWarning("Create customer failed: company not found [{CompanyId}]", dto.CompanyId);
             return Response<CustomerDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
         if (await customerRepository.ExistsByTaxIdAsync(dto.TaxId, ct: ct))
         {
+            logger.LogWarning("Create customer failed: TaxId already exists [{TaxId}]", dto.TaxId);
             return Response<CustomerDto>.Fail("TaxId already exists", ErrorCode.Conflict);
         }
 
@@ -79,6 +83,8 @@ public class CustomerService(
         var created = await customerRepository.AddAsync(customer, ct);
         var customerWithRelations = await customerRepository.GetByIdWithAssignmentsAsync(created.Id, ct);
 
+        logger.LogInformation("Customer created [{CustomerId}] [{Name}] [{CompanyId}]", created.Id, created.Name, created.CompanyId);
+
         return Response<CustomerDto>.Ok(MapToDto(customerWithRelations!));
     }
 
@@ -93,6 +99,7 @@ public class CustomerService(
         var customer = await customerRepository.GetByIdAsync(id, ct);
         if (customer is null)
         {
+            logger.LogWarning("Update customer failed: customer not found [{CustomerId}]", id);
             return Response<CustomerDto>.Fail("Customer not found", ErrorCode.NotFound);
         }
 
@@ -105,6 +112,9 @@ public class CustomerService(
         await customerRepository.UpdateAsync(customer, ct);
 
         var customerWithRelations = await customerRepository.GetByIdWithAssignmentsAsync(id, ct);
+
+        logger.LogInformation("Customer updated [{CustomerId}] [{Name}]", id, customer.Name);
+
         return Response<CustomerDto>.Ok(MapToDto(customerWithRelations!));
     }
 
@@ -113,10 +123,14 @@ public class CustomerService(
         var customer = await customerRepository.GetByIdAsync(id, ct);
         if (customer is null)
         {
+            logger.LogWarning("Delete customer failed: customer not found [{CustomerId}]", id);
             return Response<bool>.Fail("Customer not found", ErrorCode.NotFound);
         }
 
         await customerRepository.DeleteAsync(id, ct);
+
+        logger.LogInformation("Customer deleted (soft-delete) [{CustomerId}] [{Name}]", id, customer.Name);
+
         return Response<bool>.Ok(true);
     }
 
