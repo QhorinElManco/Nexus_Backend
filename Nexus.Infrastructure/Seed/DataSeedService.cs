@@ -35,6 +35,8 @@ public class DataSeedService(
         new("deliveries.manage", "Gestionar entregas"),
         new("products.view", "Ver productos"),
         new("products.manage", "Crear, editar y eliminar productos"),
+        new("categories.view", "Ver categorías"),
+        new("categories.manage", "Crear, editar y eliminar categorías"),
         new("inventory.view", "Ver inventario"),
         new("inventory.manage", "Ajustar inventario"),
         new("warehouses.view", "Ver almacenes"),
@@ -80,7 +82,9 @@ public class DataSeedService(
                 "reports.view",
                 "audit.view",
                 "accesses.view",
-                "accesses.manage"
+                "accesses.manage",
+                "categories.view",
+                "categories.manage"
             ]
         ),
         new(
@@ -103,7 +107,9 @@ public class DataSeedService(
                 "inventory.manage",
                 "warehouses.view",
                 "suppliers.view",
-                "reports.view"
+                "reports.view",
+                "categories.view",
+                "categories.manage"
             ]
         ),
         new(
@@ -126,6 +132,8 @@ public class DataSeedService(
             [
                 "products.view",
                 "products.manage",
+                "categories.view",
+                "categories.manage",
                 "inventory.view",
                 "inventory.manage",
                 "warehouses.view",

@@ -19,18 +19,19 @@ public class ProductConfiguration : BaseEntityConfiguration<Product>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(p => p.Category)
-            .HasMaxLength(100);
-
         builder.Property(p => p.Brand)
             .HasMaxLength(100);
 
         builder.HasIndex(p => p.CompanyId);
-        builder.HasIndex(p => p.Category);
 
         builder.HasOne(p => p.Company)
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CompanyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Category)
+            .WithMany(c => c.Products)
+            .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

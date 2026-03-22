@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nexus.Application.Interfaces.UseCases;
 using Nexus.Application.UseCases.Access;
 using Nexus.Application.UseCases.Auth;
+using Nexus.Application.UseCases.Categories;
 using Nexus.Application.UseCases.Companies;
 using Nexus.Application.UseCases.Customers;
 using Nexus.Application.UseCases.Roles;
@@ -18,6 +19,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         services.AddScoped<IAccessService, AccessService>();
+        services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IUserService, UserService>();
