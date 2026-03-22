@@ -94,13 +94,15 @@ public class AuthService(
         var user = await userRepository.GetByUsernameWithRolesAsync(principal.Identity?.Name ?? string.Empty, ct);
         if (user is null)
         {
-            logger.LogWarning("Refresh token failed: user not found [{Username}]", principal.Identity?.Name ?? "unknown");
+            logger.LogWarning("Refresh token failed: user not found [{Username}]",
+                principal.Identity?.Name ?? "unknown");
             return Response<LoginResultDto>.Fail("User not found or inactive", ErrorCode.Unauthorized);
         }
 
         if (!user.IsActive)
         {
-            logger.LogWarning("Refresh token failed: user inactive [{Username}]", principal.Identity?.Name ?? "unknown");
+            logger.LogWarning("Refresh token failed: user inactive [{Username}]",
+                principal.Identity?.Name ?? "unknown");
             return Response<LoginResultDto>.Fail("User not found or inactive", ErrorCode.Unauthorized);
         }
 
@@ -147,10 +149,7 @@ public class AuthService(
                 .Select(rp => rp.Permission.Name)
                 .Distinct();
 
-            foreach (var permission in permissions)
-            {
-                claims.Add(new Claim("permission", permission));
-            }
+            claims.AddRange(permissions.Select(permission => new Claim("permission", permission)));
 
             var token = new JwtSecurityToken(
                 jwtSettings.Value.Issuer,
