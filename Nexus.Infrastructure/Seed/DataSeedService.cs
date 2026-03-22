@@ -226,12 +226,12 @@ public class DataSeedService(
         }
 
         var adminRole = await context.Roles.FirstAsync(r => r.Name == "Admin" && r.CompanyId == company.Id, ct);
-        var _password = Environment.GetEnvironmentVariable("NEXUS_ADMIN_PASSWORD") ?? "Admin123!";
+        // TODO: Exception if password is not set in environment variables
+        var password = Environment.GetEnvironmentVariable("NEXUS_ADMIN_PASSWORD") ?? "Admin123!";
         var adminUser = new User
         {
             Username = adminUsername,
-            PasswordHash =
-                passwordHasher.Hash(Environment.GetEnvironmentVariable("NEXUS_ADMIN_PASSWORD") ?? "Admin123!"),
+            PasswordHash = passwordHasher.Hash(password),
             FullName = "Administrator",
             CompanyId = company.Id,
             IsActive = true
