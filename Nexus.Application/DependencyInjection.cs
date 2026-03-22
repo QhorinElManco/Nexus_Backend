@@ -7,6 +7,7 @@ using Nexus.Application.UseCases.Auth;
 using Nexus.Application.UseCases.Categories;
 using Nexus.Application.UseCases.Companies;
 using Nexus.Application.UseCases.Customers;
+using Nexus.Application.UseCases.Products;
 using Nexus.Application.UseCases.Roles;
 using Nexus.Application.UseCases.Users;
 
@@ -22,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
