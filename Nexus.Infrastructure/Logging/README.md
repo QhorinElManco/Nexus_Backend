@@ -16,9 +16,7 @@ Nexus.Infrastructure/
 ├── LoggingExtensions.cs          ← Configuración de Serilog (internal)
 ├── PersistenceExtensions.cs      ← Configuración de persistencia (internal)
 ├── Logging/
-│   ├── IAppLogger.cs
-│   ├── AppLogger.cs
-│   └── SerilogOptions.cs
+│   └── SerilogOptions.cs        ← opciones de configuración
 └── Persistence/
     └── NexusDbContext.cs
 ```
@@ -28,7 +26,6 @@ Nexus.Infrastructure/
 - Provee `AddTransversalLoggingServices(IServiceCollection, IConfiguration)` (internal)
 - Registra `IOptions<SerilogOptions>` desde la sección `Serilog` en `appsettings.json`
 - Configura Serilog con sinks configurables: Console, File y PostgreSQL
-- Registra `IAppLogger<T>` → `AppLogger<T>` como wrapper tipado sobre Serilog
 
 Las implementaciones internas y helpers (por ejemplo creación de columnas PostgreSQL, formateo, niveles) están
 encapsuladas en `LoggingExtensions.cs`.
@@ -68,24 +65,6 @@ Ejemplo (resumido) en `appsettings.json`:
 }
 ```
 
-## AppLogger<T>
-
-`IAppLogger<T>` es una interfaz ligera para exponer logging tipado; `AppLogger<T>` es su implementación basada en
-Serilog.
-Se inyecta donde se requiera para obtener contexto de tipo automáticamente.
-
-Ejemplo de uso:
-
-```csharp
-public class MyService
-{
-    private readonly IAppLogger<MyService> _logger;
-    public MyService(IAppLogger<MyService> logger) => _logger = logger;
-
-    public void Do() => _logger.LogInformation("Doing work");
-}
-```
-
 ## Uso en Program.cs (patrón actual)
 
 1. Crear un *bootstrap logger* antes de configurar el host (captura errores tempranos):
@@ -113,6 +92,20 @@ var app = builder.Build();
 
 El bootstrap logger se mantiene para capturar fallos antes de que Serilog sea configurado completamente por DI.
 
+## Uso en servicios
+
+Los servicios utilizan `ILogger<T>` de `Microsoft.Extensions.Logging.Abstractions` directamente:
+
+```csharp
+public class MyService
+{
+    private readonly ILogger<MyService> _logger;
+    public MyService(ILogger<MyService> logger) => _logger = logger;
+
+    public void Do() => _logger.LogInformation("Doing work");
+}
+```
+
 ## Ventajas
 
 1. Separation of concerns: logging queda en Infrastructure
@@ -126,3 +119,4 @@ El bootstrap logger se mantiene para capturar fallos antes de que Serilog sea co
 - `LoggingExtensions.cs` es `internal` — `DependencyInjection.cs` expone la superficie pública de la capa.
 - La tabla de logs en PostgreSQL puede crearse automáticamente si `NeedAutoCreateTable` está activo.
 - Ajusta `appsettings.json` según tu entorno y necesidades de retención/rotación.
+- Los warnings CA1848 y CA1873 están suprimidos globalmente en `Directory.Build.props` para simplificar el uso de logging.

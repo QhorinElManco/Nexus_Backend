@@ -35,8 +35,6 @@ internal static class LoggingExtensions
             ConfigureLogger(lc, options, connectionString);
         });
 
-        services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
-
         return services;
     }
 

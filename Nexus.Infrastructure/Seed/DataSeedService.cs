@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Nexus.Application.Dto.Seed;
 using Nexus.Application.Interfaces.Repositories;
 using Nexus.Application.Interfaces.UseCases;
@@ -11,7 +12,8 @@ public class DataSeedService(
     NexusDbContext context,
     ICompanyRepository companyRepository,
     IUserRepository userRepository,
-    IPasswordHasher passwordHasher) : IDataSeedService
+    IPasswordHasher passwordHasher,
+    ILogger<DataSeedService> logger) : IDataSeedService
 {
     private static readonly List<SeedAccessDto> AccessDefinitions =
     [
@@ -144,10 +146,12 @@ public class DataSeedService(
 
     public async Task SeedAsync(CancellationToken ct = default)
     {
+        logger.LogInformation("Starting data seed process");
         await SeedCompanyAsync(ct);
         await SeedPermissionsAsync(ct);
         await SeedRolesAsync(ct);
         await SeedAdminUserAsync(ct);
+        logger.LogInformation("Data seed process completed successfully");
     }
 
     private async Task SeedCompanyAsync(CancellationToken ct)
@@ -156,6 +160,7 @@ public class DataSeedService(
         var exists = await companyRepository.GetAllAsync(ct);
         if (exists.Any(c => c.Name == companyName))
         {
+            logger.LogWarning("Seed company: skipped - company [{CompanyName}] already exists", companyName);
             return;
         }
 
@@ -163,6 +168,8 @@ public class DataSeedService(
 
         context.Companies.Add(company);
         await context.SaveChangesAsync(ct);
+
+        logger.LogInformation("Seed company: created [{CompanyName}] [{CompanyId}]", companyName, company.Id);
     }
 
     private async Task SeedPermissionsAsync(CancellationToken ct)
@@ -172,6 +179,8 @@ public class DataSeedService(
 
         if (newPermissions.Count == 0)
         {
+            logger.LogWarning("Seed permissions: skipped - all {TotalCount} permissions already exist",
+                AccessDefinitions.Count);
             return;
         }
 
@@ -181,6 +190,9 @@ public class DataSeedService(
         }
 
         await context.SaveChangesAsync(ct);
+
+        logger.LogInformation("Seed permissions: created {Count} new permissions out of {TotalCount}",
+            newPermissions.Count, AccessDefinitions.Count);
     }
 
     private async Task SeedRolesAsync(CancellationToken ct)
@@ -191,6 +203,7 @@ public class DataSeedService(
 
         if (newRoles.Count == 0)
         {
+            logger.LogWarning("Seed roles: skipped - all {TotalCount} roles already exist", RoleDefinitions.Count);
             return;
         }
 
@@ -213,6 +226,9 @@ public class DataSeedService(
         }
 
         await context.SaveChangesAsync(ct);
+
+        logger.LogInformation("Seed roles: created {Count} new roles out of {TotalCount}", newRoles.Count,
+            RoleDefinitions.Count);
     }
 
     private async Task SeedAdminUserAsync(CancellationToken ct)
@@ -222,11 +238,11 @@ public class DataSeedService(
 
         if (await userRepository.ExistsByUsernameAsync(adminUsername, ct: ct))
         {
+            logger.LogWarning("Seed admin user: skipped - user [{Username}] already exists", adminUsername);
             return;
         }
 
         var adminRole = await context.Roles.FirstAsync(r => r.Name == "Admin" && r.CompanyId == company.Id, ct);
-        // TODO: Exception if password is not set in environment variables
         var password = Environment.GetEnvironmentVariable("NEXUS_ADMIN_PASSWORD") ?? "Admin123!";
         var adminUser = new User
         {
@@ -243,5 +259,8 @@ public class DataSeedService(
         context.UserRoles.Add(new UserRole { UserId = adminUser.Id, RoleId = adminRole.Id });
 
         await context.SaveChangesAsync(ct);
+
+        logger.LogInformation("Seed admin user: created [{Username}] [{UserId}] with Admin role", adminUsername,
+            adminUser.Id);
     }
 }

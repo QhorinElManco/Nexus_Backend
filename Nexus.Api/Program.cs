@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +11,7 @@ using Nexus.Application;
 using Nexus.Application.Interfaces.UseCases;
 using Nexus.Infrastructure;
 using Serilog;
+using Serilog.Context;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -71,6 +73,20 @@ if (app.Environment.IsDevelopment())
     app.UseScalar();
 }
 
+app.Use(async (httpContext, next) =>
+{
+    var correlationId = httpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault()
+                         ?? Activity.Current?.Id
+                         ?? Guid.NewGuid().ToString();
+
+    httpContext.Response.Headers["X-Correlation-Id"] = correlationId;
+
+    using (LogContext.PushProperty("CorrelationId", correlationId))
+    {
+        await next();
+    }
+});
+
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
@@ -84,9 +100,11 @@ app.MapControllers();
 var seedDataSettings = builder.Configuration.GetSection(SeedDataSettings.SectionName).Get<SeedDataSettings>();
 if (seedDataSettings?.RunOnStartup == true)
 {
+    Log.Information("Data seed is enabled. Starting seed process...");
     using var scope = app.Services.CreateScope();
     var dataSeedService = scope.ServiceProvider.GetRequiredService<IDataSeedService>();
     await dataSeedService.SeedAsync();
+    Log.Information("Data seed completed");
 }
 
 try

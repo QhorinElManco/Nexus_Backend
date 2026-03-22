@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Nexus.Application.Dto.Auth;
@@ -20,7 +21,8 @@ public class AuthService(
     IValidator<LoginRequest> loginValidator,
     IValidator<RefreshTokenRequest> refreshTokenValidator,
     IPasswordHasher passwordHasher,
-    IOptions<JwtSettings> jwtSettings) : IAuthService
+    IOptions<JwtSettings> jwtSettings,
+    ILogger<AuthService> logger) : IAuthService
 {
     public async Task<Response<LoginResultDto>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
@@ -32,13 +34,28 @@ public class AuthService(
 
         var user = await userRepository.GetByUsernameWithRolesAsync(request.Username, ct);
 
-        if (user is null || !user.IsActive || !passwordHasher.Verify(request.Password, user.PasswordHash))
+        if (user is null)
         {
+            logger.LogWarning("Login attempt failed: user not found [{Username}]", request.Username);
+            return Response<LoginResultDto>.Fail("Invalid credentials", ErrorCode.Unauthorized);
+        }
+
+        if (!user.IsActive)
+        {
+            logger.LogWarning("Login attempt failed: user inactive [{Username}]", request.Username);
+            return Response<LoginResultDto>.Fail("Invalid credentials", ErrorCode.Unauthorized);
+        }
+
+        if (!passwordHasher.Verify(request.Password, user.PasswordHash))
+        {
+            logger.LogWarning("Login attempt failed: invalid password [{Username}]", request.Username);
             return Response<LoginResultDto>.Fail("Invalid credentials", ErrorCode.Unauthorized);
         }
 
         var accessToken = GenerateAccessToken(user);
         var refreshToken = GenerateRefreshToken();
+
+        logger.LogInformation("User logged in successfully [{Username}] [{UserId}]", user.Username, user.Id);
 
         var loginResult = new LoginResultDto(
             accessToken,
@@ -63,23 +80,34 @@ public class AuthService(
 
         if (principal is null)
         {
+            logger.LogWarning("Refresh token failed: token validation error");
             return Response<LoginResultDto>.Fail("Invalid token", ErrorCode.Unauthorized);
         }
 
         var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!long.TryParse(userIdClaim, out _))
         {
+            logger.LogWarning("Refresh token failed: invalid user id claim");
             return Response<LoginResultDto>.Fail("Invalid token", ErrorCode.Unauthorized);
         }
 
         var user = await userRepository.GetByUsernameWithRolesAsync(principal.Identity?.Name ?? string.Empty, ct);
-        if (user is null || !user.IsActive)
+        if (user is null)
         {
+            logger.LogWarning("Refresh token failed: user not found [{Username}]", principal.Identity?.Name ?? "unknown");
+            return Response<LoginResultDto>.Fail("User not found or inactive", ErrorCode.Unauthorized);
+        }
+
+        if (!user.IsActive)
+        {
+            logger.LogWarning("Refresh token failed: user inactive [{Username}]", principal.Identity?.Name ?? "unknown");
             return Response<LoginResultDto>.Fail("User not found or inactive", ErrorCode.Unauthorized);
         }
 
         var newAccessToken = GenerateAccessToken(user);
         var newRefreshToken = GenerateRefreshToken();
+
+        logger.LogInformation("Token refreshed successfully [{Username}] [{UserId}]", user.Username, user.Id);
 
         var loginResult = new LoginResultDto(
             newAccessToken,
@@ -93,43 +121,52 @@ public class AuthService(
 
     public Task<Response<bool>> LogoutAsync(long userId, CancellationToken ct = default)
     {
+        logger.LogInformation("User logged out [{UserId}]", userId);
         return Task.FromResult(Response<bool>.Ok(true));
     }
 
     private string GenerateAccessToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.Secret));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var claims = new List<Claim>
+        try
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture)),
-            new(ClaimTypes.Name, user.Username),
-            new(ClaimTypes.GivenName, user.FullName),
-            new("company_id", user.CompanyId.ToString(CultureInfo.InvariantCulture))
-        };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.Secret));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture)),
+                new(ClaimTypes.Name, user.Username),
+                new(ClaimTypes.GivenName, user.FullName),
+                new("company_id", user.CompanyId.ToString(CultureInfo.InvariantCulture))
+            };
 
-        var permissions = user.UserRoles
-            .SelectMany(ur => ur.Role.RolePermissions)
-            .Select(rp => rp.Permission.Name)
-            .Distinct();
+            claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
 
-        foreach (var permission in permissions)
-        {
-            claims.Add(new Claim("permission", permission));
+            var permissions = user.UserRoles
+                .SelectMany(ur => ur.Role.RolePermissions)
+                .Select(rp => rp.Permission.Name)
+                .Distinct();
+
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("permission", permission));
+            }
+
+            var token = new JwtSecurityToken(
+                jwtSettings.Value.Issuer,
+                jwtSettings.Value.Audience,
+                claims,
+                expires: DateTime.UtcNow.AddMinutes(jwtSettings.Value.AccessTokenExpirationMinutes),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-        var token = new JwtSecurityToken(
-            jwtSettings.Value.Issuer,
-            jwtSettings.Value.Audience,
-            claims,
-            expires: DateTime.UtcNow.AddMinutes(jwtSettings.Value.AccessTokenExpirationMinutes),
-            signingCredentials: credentials
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to generate access token for user [{UserId}]", user.Id);
+            throw;
+        }
     }
 
     private static string GenerateRefreshToken()
