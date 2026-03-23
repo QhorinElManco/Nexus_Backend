@@ -60,6 +60,8 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("categories.manage", p => p.RequireClaim("permission", "categories.manage"))
     .AddPolicy("products.view", p => p.RequireClaim("permission", "products.view"))
     .AddPolicy("products.manage", p => p.RequireClaim("permission", "products.manage"))
+    .AddPolicy("skus.view", p => p.RequireClaim("permission", "skus.view"))
+    .AddPolicy("skus.manage", p => p.RequireClaim("permission", "skus.manage"))
     .AddPolicy("auth.logout", p => p.RequireAuthenticatedUser());
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();

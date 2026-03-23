@@ -37,6 +37,7 @@ internal static class PersistenceExtensions
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ISkuRepository, SkuRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
