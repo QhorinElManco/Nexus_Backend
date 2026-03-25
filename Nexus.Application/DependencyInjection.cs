@@ -9,6 +9,7 @@ using Nexus.Application.UseCases.Companies;
 using Nexus.Application.UseCases.Customers;
 using Nexus.Application.UseCases.Products;
 using Nexus.Application.UseCases.Roles;
+using Nexus.Application.UseCases.Suppliers;
 using Nexus.Application.UseCases.Users;
 
 namespace Nexus.Application;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<ISupplierService, SupplierService>();
 
         return services;
     }

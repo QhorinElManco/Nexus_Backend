@@ -26,11 +26,13 @@ internal static class PersistenceExtensions
         {
             options.UseNpgsql(connectionString);
 
-            if (environment.IsDevelopment())
+            if (!environment.IsDevelopment())
             {
-                options.EnableSensitiveDataLogging();
-                options.EnableDetailedErrors();
+                return;
             }
+
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
         });
 
         services.AddScoped<IAccessRepository, AccessRepository>();
@@ -42,6 +44,7 @@ internal static class PersistenceExtensions
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<ISupplierRepository, SupplierRepository>();
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IDataSeedService, DataSeedService>();
