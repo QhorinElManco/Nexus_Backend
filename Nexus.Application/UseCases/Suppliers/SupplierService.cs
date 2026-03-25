@@ -81,7 +81,7 @@ public class SupplierService(
         return Response<SupplierDto>.Ok(MapToDto(created), "Supplier created successfully");
     }
 
-    public async Task<Response<SupplierDto>> UpdateAsync(long id, long companyId, UpdateSupplierDto dto,
+    public async Task<Response<SupplierDto>> UpdateAsync(long id, UpdateSupplierDto dto,
         CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
@@ -91,11 +91,13 @@ public class SupplierService(
         }
 
         var supplier = await repository.GetByIdAsync(id, ct);
-        if (supplier is null || supplier.CompanyId != companyId)
+        if (supplier is null)
         {
-            logger.LogWarning("Update supplier failed: supplier not found [{SupplierId}] [{CompanyId}]", id, companyId);
+            logger.LogWarning("Update supplier failed: supplier not found [{SupplierId}]", id);
             return Response<SupplierDto>.Fail("Supplier not found", ErrorCode.NotFound);
         }
+
+        var companyId = supplier.CompanyId;
 
         supplier.Name = dto.Name;
 
@@ -106,14 +108,16 @@ public class SupplierService(
         return Response<SupplierDto>.Ok(MapToDto(supplier), "Supplier updated successfully");
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
     {
         var supplier = await repository.GetByIdAsync(id, ct);
-        if (supplier is null || supplier.CompanyId != companyId)
+        if (supplier is null)
         {
-            logger.LogWarning("Delete supplier failed: supplier not found [{SupplierId}] [{CompanyId}]", id, companyId);
+            logger.LogWarning("Delete supplier failed: supplier not found [{SupplierId}]", id);
             return Response<bool>.Fail("Supplier not found", ErrorCode.NotFound);
         }
+
+        var companyId = supplier.CompanyId;
 
         await repository.DeleteAsync(id, ct);
 

@@ -49,19 +49,18 @@ public class SuppliersController(ISupplierService supplierService) : ControllerB
 
     [HttpPut("{id:long}")]
     [Authorize(Policy = "suppliers.manage")]
-    public async Task<ActionResult<Response<SupplierDto>>> Update(long id, [FromQuery] long companyId,
+    public async Task<ActionResult<Response<SupplierDto>>> Update(long id,
         [FromBody] UpdateSupplierDto dto, CancellationToken ct = default)
     {
-        var result = await supplierService.UpdateAsync(id, companyId, dto, ct);
+        var result = await supplierService.UpdateAsync(id, dto, ct);
         return result.ToActionResult();
     }
 
     [HttpDelete("{id:long}")]
     [Authorize(Policy = "suppliers.manage")]
-    public async Task<ActionResult<Response<bool>>> Delete(long id, [FromQuery] long companyId,
-        CancellationToken ct = default)
+    public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await supplierService.DeleteAsync(id, companyId, ct);
+        var result = await supplierService.DeleteAsync(id, ct);
         return result.ToNoContentResult();
     }
 }

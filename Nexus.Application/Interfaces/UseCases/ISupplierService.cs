@@ -13,8 +13,8 @@ public interface ISupplierService
 
     public Task<Response<SupplierDto>> CreateAsync(long companyId, CreateSupplierDto dto, CancellationToken ct = default);
 
-    public Task<Response<SupplierDto>> UpdateAsync(long id, long companyId, UpdateSupplierDto dto,
+    public Task<Response<SupplierDto>> UpdateAsync(long id, UpdateSupplierDto dto,
         CancellationToken ct = default);
 
-    public Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default);
+    public Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default);
 }
