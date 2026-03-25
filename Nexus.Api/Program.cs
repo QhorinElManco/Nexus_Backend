@@ -62,6 +62,8 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("products.manage", p => p.RequireClaim("permission", "products.manage"))
     .AddPolicy("skus.view", p => p.RequireClaim("permission", "skus.view"))
     .AddPolicy("skus.manage", p => p.RequireClaim("permission", "skus.manage"))
+    .AddPolicy("warehousetypes.view", p => p.RequireClaim("permission", "warehousetypes.view"))
+    .AddPolicy("warehousetypes.manage", p => p.RequireClaim("permission", "warehousetypes.manage"))
     .AddPolicy("auth.logout", p => p.RequireAuthenticatedUser());
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
@@ -82,8 +84,8 @@ if (app.Environment.IsDevelopment())
 app.Use(async (httpContext, next) =>
 {
     var correlationId = httpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault()
-                         ?? Activity.Current?.Id
-                         ?? Guid.NewGuid().ToString();
+                        ?? Activity.Current?.Id
+                        ?? Guid.NewGuid().ToString();
 
     httpContext.Response.Headers["X-Correlation-Id"] = correlationId;
 

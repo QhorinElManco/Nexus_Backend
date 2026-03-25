@@ -22,6 +22,7 @@ public class NexusDbContext(DbContextOptions<NexusDbContext> options) : DbContex
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<WarehouseType> WarehouseTypes => Set<WarehouseType>();
     public DbSet<Sku> Skus => Set<Sku>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<SmartInventory> SmartInventories => Set<SmartInventory>();

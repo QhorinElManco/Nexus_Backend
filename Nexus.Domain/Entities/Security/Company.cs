@@ -17,6 +17,7 @@ public class Company : BaseEntity
     public ICollection<Customer> Customers { get; set; } = [];
     public ICollection<Product> Products { get; set; } = [];
     public ICollection<Category> Categories { get; set; } = [];
+    public ICollection<WarehouseType> WarehouseTypes { get; set; } = [];
     public ICollection<Warehouse> Warehouses { get; set; } = [];
     public ICollection<Supplier> Suppliers { get; set; } = [];
     public ICollection<KardexEntry> KardexEntries { get; set; } = [];

@@ -22,9 +22,8 @@ public class WarehouseConfiguration : BaseEntityConfiguration<Warehouse>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(w => w.Type)
-            .IsRequired()
-            .HasMaxLength(50);
+        builder.Property(w => w.WarehouseTypeId)
+            .IsRequired();
 
         builder.Property(w => w.Lat);
 
@@ -41,6 +40,11 @@ public class WarehouseConfiguration : BaseEntityConfiguration<Warehouse>
         builder.HasOne(w => w.Manager)
             .WithMany(u => u.ManagedWarehouses)
             .HasForeignKey(w => w.ManagerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(w => w.WarehouseType)
+            .WithMany(wt => wt.Warehouses)
+            .HasForeignKey(w => w.WarehouseTypeId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
