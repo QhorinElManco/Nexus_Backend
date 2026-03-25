@@ -10,7 +10,9 @@ using Nexus.Application.UseCases.Customers;
 using Nexus.Application.UseCases.Products;
 using Nexus.Application.UseCases.Roles;
 using Nexus.Application.UseCases.Suppliers;
+using Nexus.Application.UseCases.Products.Warehouses;
 using Nexus.Application.UseCases.Users;
+using Nexus.Application.UseCases.WarehouseTypes;
 
 namespace Nexus.Application;
 
@@ -30,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ISupplierService, SupplierService>();
+        services.AddScoped<IWarehouseService, WarehouseService>();
+        services.AddScoped<IWarehouseTypeService, WarehouseTypeService>();
 
         return services;
     }
