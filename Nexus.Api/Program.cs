@@ -66,6 +66,8 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("warehousetypes.manage", p => p.RequireClaim("permission", "warehousetypes.manage"))
     .AddPolicy("warehouses.view", p => p.RequireClaim("permission", "warehouses.view"))
     .AddPolicy("warehouses.manage", p => p.RequireClaim("permission", "warehouses.manage"))
+    .AddPolicy("smartinventories.view", p => p.RequireClaim("permission", "smartinventories.view"))
+    .AddPolicy("smartinventories.manage", p => p.RequireClaim("permission", "smartinventories.manage"))
     .AddPolicy("auth.logout", p => p.RequireAuthenticatedUser());
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();

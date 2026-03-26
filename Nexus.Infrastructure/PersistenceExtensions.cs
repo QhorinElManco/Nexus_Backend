@@ -47,6 +47,7 @@ internal static class PersistenceExtensions
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IWarehouseTypeRepository, WarehouseTypeRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+        services.AddScoped<ISmartInventoryRepository, SmartInventoryRepository>();
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IDataSeedService, DataSeedService>();

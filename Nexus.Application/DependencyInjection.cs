@@ -11,6 +11,7 @@ using Nexus.Application.UseCases.Products;
 using Nexus.Application.UseCases.Roles;
 using Nexus.Application.UseCases.Suppliers;
 using Nexus.Application.UseCases.Products.Warehouses;
+using Nexus.Application.UseCases.Products.SmartInventories;
 using Nexus.Application.UseCases.Users;
 using Nexus.Application.UseCases.WarehouseTypes;
 
@@ -34,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<ISupplierService, SupplierService>();
         services.AddScoped<IWarehouseService, WarehouseService>();
         services.AddScoped<IWarehouseTypeService, WarehouseTypeService>();
+        services.AddScoped<ISmartInventoryService, SmartInventoryService>();
 
         return services;
     }
