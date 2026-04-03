@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
     <NoWarn>CA1707;CA1305;CA1859</NoWarn>
   </PropertyGroup>
@@ -19,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Moq"/>
-    <PackageReference Include="xunit.v3"/>
+    <PackageReference Include="xunit"/>
   </ItemGroup>
 
 </Project>
