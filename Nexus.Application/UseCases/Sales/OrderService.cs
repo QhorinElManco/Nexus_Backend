@@ -330,24 +330,24 @@ public class OrderService(
             order.Id,
             order.CompanyId,
             order.CustomerId,
-            order.Customer?.Name ?? string.Empty,
+            order.Customer.Name,
             order.UserId,
-            order.User?.FullName ?? string.Empty,
+            order.User.FullName,
             order.VisitId,
             order.WarehouseId,
             order.OrderType,
             order.Status,
             order.TotalAmount,
-            order.OrderDetails?.Select(od => new OrderDetailDto(
+            order.OrderDetails.Select(od => new OrderDetailDto(
                 od.Id,
                 od.OrderId,
                 od.SkuId,
-                od.Sku?.Barcode ?? string.Empty,
-                od.Sku?.Product?.Name ?? string.Empty,
+                od.Sku.Barcode,
+                od.Sku.Product.Name,
                 od.Quantity,
                 od.UnitPrice,
                 od.Subtotal
-            )).ToList() ?? [],
+            )).ToList(),
             order.CreatedAt,
             order.UpdatedAt
         );
