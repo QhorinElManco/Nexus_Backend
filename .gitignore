@@ -359,6 +359,7 @@ Nexus.Api/appsettings.Development.json
 Nexus.Api/appsettings.Production.json
 
 # Custom exclusions
+/.atl/
 /build/
 /dist/
 /.build/
