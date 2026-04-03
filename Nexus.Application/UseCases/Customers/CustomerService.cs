@@ -43,7 +43,8 @@ public class CustomerService(
             totalCount);
     }
 
-    public async Task<Response<CustomerDto>> CreateAsync(CreateCustomerDto dto, CancellationToken ct = default)
+    public async Task<Response<CustomerDto>> CreateAsync(CreateCustomerDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -51,14 +52,14 @@ public class CustomerService(
             return validationResult.ToFailureResponse<CustomerDto>();
         }
 
-        var companyExists = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
+        var companyExists = await companyRepository.GetByIdAsync(companyId, ct);
         if (companyExists is null)
         {
-            logger.LogWarning("Create customer failed: company not found [{CompanyId}]", dto.CompanyId);
+            logger.LogWarning("Create customer failed: company not found [{CompanyId}]", companyId);
             return Response<CustomerDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
-        if (await customerRepository.ExistsByTaxIdAsync(dto.TaxId, dto.CompanyId, ct: ct))
+        if (await customerRepository.ExistsByTaxIdAsync(dto.TaxId, companyId, ct: ct))
         {
             logger.LogWarning("Create customer failed: TaxId already exists [{TaxId}]", dto.TaxId);
             return Response<CustomerDto>.Fail("TaxId already exists", ErrorCode.Conflict);
@@ -66,7 +67,7 @@ public class CustomerService(
 
         var customer = new Customer
         {
-            CompanyId = dto.CompanyId,
+            CompanyId = companyId,
             Name = dto.Name,
             TradeName = dto.TradeName,
             TaxId = dto.TaxId,

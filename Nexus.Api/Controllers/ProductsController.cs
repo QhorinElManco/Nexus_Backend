@@ -9,13 +9,14 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductsController(IProductService productService) : ControllerBase
+public class ProductsController(IProductService productService, IClaimsExtractor claimsExtractor) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "products.view")]
     public async Task<ActionResult<Response<IReadOnlyList<ProductDto>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await productService.GetAllAsync(ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await productService.GetByCompanyAsync(companyId, ct);
         return result.ToActionResult();
     }
 
@@ -23,16 +24,8 @@ public class ProductsController(IProductService productService) : ControllerBase
     [Authorize(Policy = "products.view")]
     public async Task<ActionResult<Response<ProductDto>>> GetById(long id, CancellationToken ct = default)
     {
-        var result = await productService.GetByIdAsync(id, ct);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("company/{companyId:long}")]
-    [Authorize(Policy = "products.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<ProductDto>>>> GetByCompany(long companyId,
-        CancellationToken ct = default)
-    {
-        var result = await productService.GetByCompanyAsync(companyId, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await productService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -41,7 +34,8 @@ public class ProductsController(IProductService productService) : ControllerBase
     public async Task<ActionResult<Response<ProductDto>>> Create([FromBody] CreateProductDto dto,
         CancellationToken ct = default)
     {
-        var result = await productService.CreateAsync(dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await productService.CreateAsync(dto, companyId, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
@@ -50,7 +44,8 @@ public class ProductsController(IProductService productService) : ControllerBase
     public async Task<ActionResult<Response<ProductDto>>> Update(long id, [FromBody] UpdateProductDto dto,
         CancellationToken ct = default)
     {
-        var result = await productService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await productService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -58,7 +53,8 @@ public class ProductsController(IProductService productService) : ControllerBase
     [Authorize(Policy = "products.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await productService.DeleteAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await productService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
 }

@@ -1,7 +1,6 @@
 namespace Nexus.Application.Dto.Products;
 
 public record CreateWarehouseDto(
-    long CompanyId,
     long ManagerId,
     string Name,
     long WarehouseTypeId,

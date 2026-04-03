@@ -9,13 +9,14 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController(IUserService userService) : ControllerBase
+public class UsersController(IUserService userService, IClaimsExtractor claimsExtractor) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "users.view")]
     public async Task<ActionResult<Response<IReadOnlyList<UserDto>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await userService.GetAllAsync(ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.GetByCompanyAsync(companyId, ct);
         return result.ToActionResult();
     }
 
@@ -23,7 +24,8 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = "users.view")]
     public async Task<ActionResult<Response<UserDto>>> GetById(long id, CancellationToken ct = default)
     {
-        var result = await userService.GetByIdAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -32,7 +34,9 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<ResponsePagination<UserDto>>> Search([FromQuery] UserSearchRequest request,
         CancellationToken ct = default)
     {
-        var result = await userService.SearchAsync(request, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var requestWithCompany = request with { CompanyId = companyId };
+        var result = await userService.SearchAsync(requestWithCompany, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -40,16 +44,8 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = "users.view")]
     public async Task<ActionResult<Response<UserDto>>> GetByUsername(string username, CancellationToken ct = default)
     {
-        var result = await userService.GetByUsernameAsync(username, ct);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("company/{companyId:long}")]
-    [Authorize(Policy = "users.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<UserDto>>>> GetByCompany(long companyId,
-        CancellationToken ct = default)
-    {
-        var result = await userService.GetByCompanyAsync(companyId, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.GetByUsernameAsync(username, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -58,7 +54,8 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<UserDto>>> Create([FromBody] CreateUserDto dto,
         CancellationToken ct = default)
     {
-        var result = await userService.CreateAsync(dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.CreateAsync(dto, companyId, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
@@ -67,7 +64,8 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<UserDto>>> Update(long id, [FromBody] UpdateUserDto dto,
         CancellationToken ct = default)
     {
-        var result = await userService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -75,7 +73,8 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = "users.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await userService.DeleteAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
 
@@ -84,7 +83,8 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<Response<UserDto>>> AssignRole(long id, [FromBody] AssignRoleDto dto,
         CancellationToken ct = default)
     {
-        var result = await userService.AssignRoleAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.AssignRoleAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -92,7 +92,8 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = "users.manage")]
     public async Task<ActionResult<Response<bool>>> RemoveRole(long id, long roleId, CancellationToken ct = default)
     {
-        var result = await userService.RemoveRoleAsync(id, roleId, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await userService.RemoveRoleAsync(id, roleId, companyId, ct);
         return result.ToActionResult();
     }
 }

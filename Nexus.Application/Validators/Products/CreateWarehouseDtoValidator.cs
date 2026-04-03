@@ -7,9 +7,6 @@ public class CreateWarehouseDtoValidator : AbstractValidator<CreateWarehouseDto>
 {
     public CreateWarehouseDtoValidator()
     {
-        RuleFor(x => x.CompanyId)
-            .GreaterThan(0).WithMessage("CompanyId is required");
-
         RuleFor(x => x.ManagerId)
             .GreaterThan(0).WithMessage("ManagerId is required");
 

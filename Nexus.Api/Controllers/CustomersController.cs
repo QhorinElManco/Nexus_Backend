@@ -55,8 +55,7 @@ public class CustomersController(ICustomerService customerService, IClaimsExtrac
         CancellationToken ct = default)
     {
         var companyId = claimsExtractor.GetCurrentCompanyId();
-        var dtoWithCompany = dto with { CompanyId = companyId };
-        var result = await customerService.CreateAsync(dtoWithCompany, ct);
+        var result = await customerService.CreateAsync(dto, companyId, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 

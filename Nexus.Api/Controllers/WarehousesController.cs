@@ -31,12 +31,11 @@ public class WarehousesController(IWarehouseService warehouseService, IClaimsExt
 
     [HttpPost]
     [Authorize(Policy = "warehouses.manage")]
-    public async Task<ActionResult<Response<WarehouseDto>>> Create([FromBody] CreateWarehouseDto dto, 
+    public async Task<ActionResult<Response<WarehouseDto>>> Create([FromBody] CreateWarehouseDto dto,
         CancellationToken ct = default)
     {
         var companyId = claimsExtractor.GetCurrentCompanyId();
-        var dtoWithCompany = dto with { CompanyId = companyId };
-        var result = await warehouseService.CreateAsync(dtoWithCompany, companyId, ct);
+        var result = await warehouseService.CreateAsync(dto, companyId, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 

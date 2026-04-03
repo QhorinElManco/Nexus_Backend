@@ -15,8 +15,5 @@ public class CreateRoleDtoValidator : AbstractValidator<CreateRoleDto>
         RuleFor(x => x.Description)
             .MaximumLength(200).WithMessage("Description must be at most 200 characters")
             .When(x => x.Description is not null);
-
-        RuleFor(x => x.CompanyId)
-            .GreaterThan(0).WithMessage("CompanyId must be greater than 0");
     }
 }

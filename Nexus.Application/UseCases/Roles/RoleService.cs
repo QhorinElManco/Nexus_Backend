@@ -15,19 +15,16 @@ public class RoleService(
     IValidator<UpdateRoleDto> updateValidator,
     ILogger<RoleService> logger) : IRoleService
 {
-    public async Task<Response<RoleDto>> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<Response<RoleDto>> GetByIdAsync(long id, long companyId, CancellationToken ct = default)
     {
         var role = await roleRepository.GetByIdWithPermissionsAsync(id, ct);
 
-        return role is null
-            ? Response<RoleDto>.Fail("Role not found", ErrorCode.NotFound)
-            : Response<RoleDto>.Ok(MapToDto(role));
-    }
+        if (role is null || role.CompanyId != companyId)
+        {
+            return Response<RoleDto>.Fail("Role not found", ErrorCode.NotFound);
+        }
 
-    public async Task<Response<IReadOnlyList<RoleDto>>> GetAllAsync(CancellationToken ct = default)
-    {
-        var roles = await roleRepository.GetAllAsync(ct);
-        return Response<IReadOnlyList<RoleDto>>.Ok(roles.Select(MapToDto).ToList());
+        return Response<RoleDto>.Ok(MapToDto(role));
     }
 
     public async Task<Response<IReadOnlyList<RoleDto>>> GetByCompanyAsync(long companyId,
@@ -37,7 +34,7 @@ public class RoleService(
         return Response<IReadOnlyList<RoleDto>>.Ok(roles.Select(MapToDto).ToList());
     }
 
-    public async Task<Response<RoleDto>> CreateAsync(CreateRoleDto dto, CancellationToken ct = default)
+    public async Task<Response<RoleDto>> CreateAsync(CreateRoleDto dto, long companyId, CancellationToken ct = default)
     {
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -45,31 +42,34 @@ public class RoleService(
             return validationResult.ToFailureResponse<RoleDto>();
         }
 
-        var companyExists = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
+        var companyExists = await companyRepository.GetByIdAsync(companyId, ct);
         if (companyExists is null)
         {
-            logger.LogWarning("Create role failed: company not found [{CompanyId}]", dto.CompanyId);
+            logger.LogWarning("Create role failed: company not found [{CompanyId}]", companyId);
             return Response<RoleDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
-        if (await roleRepository.ExistsByNameAsync(dto.Name, dto.CompanyId, ct: ct))
+        if (await roleRepository.ExistsByNameAsync(dto.Name, companyId, ct: ct))
         {
-            logger.LogWarning("Create role failed: role name already exists [{RoleName}] in company [{CompanyId}]", dto.Name, dto.CompanyId);
+            logger.LogWarning("Create role failed: role name already exists [{RoleName}] in company [{CompanyId}]",
+                dto.Name, companyId);
             return Response<RoleDto>.Fail("A role with this name already exists in this company", ErrorCode.Conflict);
         }
 
-        var role = new Role { Name = dto.Name, Description = dto.Description, CompanyId = dto.CompanyId };
+        var role = new Role { Name = dto.Name, Description = dto.Description, CompanyId = companyId };
 
         var created = await roleRepository.AddAsync(role, ct);
 
         var roleWithPermissions = await roleRepository.GetByIdWithPermissionsAsync(created.Id, ct);
 
-        logger.LogInformation("Role created [{RoleId}] [{RoleName}] [{CompanyId}]", created.Id, created.Name, created.CompanyId);
+        logger.LogInformation("Role created [{RoleId}] [{RoleName}] [{CompanyId}]", created.Id, created.Name,
+            created.CompanyId);
 
         return Response<RoleDto>.Ok(MapToDto(roleWithPermissions!));
     }
 
-    public async Task<Response<RoleDto>> UpdateAsync(long id, UpdateRoleDto dto, CancellationToken ct = default)
+    public async Task<Response<RoleDto>> UpdateAsync(long id, UpdateRoleDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -78,7 +78,7 @@ public class RoleService(
         }
 
         var role = await roleRepository.GetByIdAsync(id, ct);
-        if (role is null)
+        if (role is null || role.CompanyId != companyId)
         {
             logger.LogWarning("Update role failed: role not found [{RoleId}]", id);
             return Response<RoleDto>.Fail("Role not found", ErrorCode.NotFound);
@@ -86,7 +86,8 @@ public class RoleService(
 
         if (await roleRepository.ExistsByNameAsync(dto.Name, role.CompanyId, id, ct))
         {
-            logger.LogWarning("Update role failed: role name already exists [{RoleName}] in company [{CompanyId}]", dto.Name, role.CompanyId);
+            logger.LogWarning("Update role failed: role name already exists [{RoleName}] in company [{CompanyId}]",
+                dto.Name, role.CompanyId);
             return Response<RoleDto>.Fail("A role with this name already exists in this company", ErrorCode.Conflict);
         }
 
@@ -102,10 +103,10 @@ public class RoleService(
         return Response<RoleDto>.Ok(MapToDto(roleWithPermissions!));
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
     {
         var role = await roleRepository.GetByIdAsync(id, ct);
-        if (role is null)
+        if (role is null || role.CompanyId != companyId)
         {
             logger.LogWarning("Delete role failed: role not found [{RoleId}]", id);
             return Response<bool>.Fail("Role not found", ErrorCode.NotFound);

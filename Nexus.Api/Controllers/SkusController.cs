@@ -9,29 +9,24 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SkusController(ISkuService skuService) : ControllerBase
+public class SkusController(ISkuService skuService, IClaimsExtractor claimsExtractor) : ControllerBase
 {
-    [HttpGet]
-    [Authorize(Policy = "skus.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<SkuDto>>>> GetAll(CancellationToken ct = default)
-    {
-        var result = await skuService.GetAllAsync(ct);
-        return result.ToActionResult();
-    }
-
     [HttpGet("{id:long}")]
     [Authorize(Policy = "skus.view")]
     public async Task<ActionResult<Response<SkuDto>>> GetById(long id, CancellationToken ct = default)
     {
-        var result = await skuService.GetByIdAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await skuService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
 
     [HttpGet("product/{productId:long}")]
     [Authorize(Policy = "skus.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<SkuDto>>>> GetByProduct(long productId, CancellationToken ct = default)
+    public async Task<ActionResult<Response<IReadOnlyList<SkuDto>>>> GetByProduct(long productId,
+        CancellationToken ct = default)
     {
-        var result = await skuService.GetByProductAsync(productId, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await skuService.GetByProductAsync(productId, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -40,7 +35,8 @@ public class SkusController(ISkuService skuService) : ControllerBase
     public async Task<ActionResult<Response<SkuDto>>> Create([FromBody] CreateSkuDto dto,
         CancellationToken ct = default)
     {
-        var result = await skuService.CreateAsync(dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await skuService.CreateAsync(dto, companyId, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
@@ -49,7 +45,8 @@ public class SkusController(ISkuService skuService) : ControllerBase
     public async Task<ActionResult<Response<SkuDto>>> Update(long id, [FromBody] UpdateSkuDto dto,
         CancellationToken ct = default)
     {
-        var result = await skuService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await skuService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -57,7 +54,8 @@ public class SkusController(ISkuService skuService) : ControllerBase
     [Authorize(Policy = "skus.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await skuService.DeleteAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await skuService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
 }

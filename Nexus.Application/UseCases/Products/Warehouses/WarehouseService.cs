@@ -63,7 +63,7 @@ public class WarehouseService(
         }
 
         var warehouseType = await warehouseTypeRepository.GetByIdAsync(dto.WarehouseTypeId, ct);
-        if (warehouseType is null)
+        if (warehouseType is null || warehouseType.CompanyId != companyId)
         {
             logger.LogWarning(
                 "Create warehouse failed: warehouse type not found [{WarehouseTypeId}]",

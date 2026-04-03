@@ -15,28 +15,27 @@ public class CategoryService(
     IValidator<UpdateCategoryDto> updateValidator,
     ILogger<CategoryService> logger) : ICategoryService
 {
-    public async Task<Response<CategoryDto>> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<Response<CategoryDto>> GetByIdAsync(long id, long companyId, CancellationToken ct = default)
     {
         var category = await categoryRepository.GetByIdAsync(id, ct);
 
-        return category is null
-            ? Response<CategoryDto>.Fail("Category not found", ErrorCode.NotFound)
-            : Response<CategoryDto>.Ok(MapToDto(category));
+        if (category is null || category.CompanyId != companyId)
+        {
+            return Response<CategoryDto>.Fail("Category not found", ErrorCode.NotFound);
+        }
+
+        return Response<CategoryDto>.Ok(MapToDto(category));
     }
 
-    public async Task<Response<IReadOnlyList<CategoryDto>>> GetAllAsync(CancellationToken ct = default)
-    {
-        var categories = await categoryRepository.GetAllAsync(ct);
-        return Response<IReadOnlyList<CategoryDto>>.Ok(categories.Select(MapToDto).ToList());
-    }
-
-    public async Task<Response<IReadOnlyList<CategoryDto>>> GetByCompanyAsync(long companyId, CancellationToken ct = default)
+    public async Task<Response<IReadOnlyList<CategoryDto>>> GetByCompanyAsync(long companyId,
+        CancellationToken ct = default)
     {
         var categories = await categoryRepository.GetByCompanyAsync(companyId, ct);
         return Response<IReadOnlyList<CategoryDto>>.Ok(categories.Select(MapToDto).ToList());
     }
 
-    public async Task<Response<CategoryDto>> CreateAsync(CreateCategoryDto dto, CancellationToken ct = default)
+    public async Task<Response<CategoryDto>> CreateAsync(CreateCategoryDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -44,35 +43,33 @@ public class CategoryService(
             return validationResult.ToFailureResponse<CategoryDto>();
         }
 
-        var companyExists = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
+        var companyExists = await companyRepository.GetByIdAsync(companyId, ct);
         if (companyExists is null)
         {
-            logger.LogWarning("Create category failed: company not found [{CompanyId}]", dto.CompanyId);
+            logger.LogWarning("Create category failed: company not found [{CompanyId}]", companyId);
             return Response<CategoryDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
-        if (await categoryRepository.ExistsByNameAsync(dto.CompanyId, dto.Name, ct: ct))
+        if (await categoryRepository.ExistsByNameAsync(companyId, dto.Name, ct: ct))
         {
             logger.LogWarning("Create category failed: category name already exists [{Name}] for company [{CompanyId}]",
-                dto.Name, dto.CompanyId);
-            return Response<CategoryDto>.Fail("A category with this name already exists for this company", ErrorCode.Conflict);
+                dto.Name, companyId);
+            return Response<CategoryDto>.Fail("A category with this name already exists for this company",
+                ErrorCode.Conflict);
         }
 
-        var category = new Category
-        {
-            CompanyId = dto.CompanyId,
-            Name = dto.Name,
-            Description = dto.Description
-        };
+        var category = new Category { CompanyId = companyId, Name = dto.Name, Description = dto.Description };
 
         var created = await categoryRepository.AddAsync(category, ct);
 
-        logger.LogInformation("Category created [{CategoryId}] [{Name}] [{CompanyId}]", created.Id, created.Name, created.CompanyId);
+        logger.LogInformation("Category created [{CategoryId}] [{Name}] [{CompanyId}]", created.Id, created.Name,
+            created.CompanyId);
 
         return Response<CategoryDto>.Ok(MapToDto(created));
     }
 
-    public async Task<Response<CategoryDto>> UpdateAsync(long id, UpdateCategoryDto dto, CancellationToken ct = default)
+    public async Task<Response<CategoryDto>> UpdateAsync(long id, UpdateCategoryDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -81,7 +78,7 @@ public class CategoryService(
         }
 
         var category = await categoryRepository.GetByIdAsync(id, ct);
-        if (category is null)
+        if (category is null || category.CompanyId != companyId)
         {
             logger.LogWarning("Update category failed: category not found [{CategoryId}]", id);
             return Response<CategoryDto>.Fail("Category not found", ErrorCode.NotFound);
@@ -91,7 +88,8 @@ public class CategoryService(
         {
             logger.LogWarning("Update category failed: category name already exists [{Name}] for company [{CompanyId}]",
                 dto.Name, category.CompanyId);
-            return Response<CategoryDto>.Fail("A category with this name already exists for this company", ErrorCode.Conflict);
+            return Response<CategoryDto>.Fail("A category with this name already exists for this company",
+                ErrorCode.Conflict);
         }
 
         category.Name = dto.Name;
@@ -104,10 +102,10 @@ public class CategoryService(
         return Response<CategoryDto>.Ok(MapToDto(category));
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
     {
         var category = await categoryRepository.GetByIdAsync(id, ct);
-        if (category is null)
+        if (category is null || category.CompanyId != companyId)
         {
             logger.LogWarning("Delete category failed: category not found [{CategoryId}]", id);
             return Response<bool>.Fail("Category not found", ErrorCode.NotFound);

@@ -11,7 +11,8 @@ public interface ICustomerService
     public Task<ResponsePagination<CustomerDto>> SearchAsync(CustomerSearchRequest request,
         CancellationToken ct = default);
 
-    public Task<Response<CustomerDto>> CreateAsync(CreateCustomerDto dto, CancellationToken ct = default);
+    public Task<Response<CustomerDto>> CreateAsync(CreateCustomerDto dto, long companyId,
+        CancellationToken ct = default);
 
     public Task<Response<CustomerDto>> UpdateAsync(long id, UpdateCustomerDto dto, long companyId,
         CancellationToken ct = default);

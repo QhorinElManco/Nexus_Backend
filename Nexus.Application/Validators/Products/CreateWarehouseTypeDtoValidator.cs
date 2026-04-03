@@ -7,9 +7,6 @@ public class CreateWarehouseTypeDtoValidator : AbstractValidator<CreateWarehouse
 {
     public CreateWarehouseTypeDtoValidator()
     {
-        RuleFor(x => x.CompanyId)
-            .GreaterThan(0).WithMessage("CompanyId must be greater than 0");
-
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required")
             .MaximumLength(100).WithMessage("Name must be at most 100 characters");

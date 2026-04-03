@@ -15,28 +15,32 @@ public class SkuService(
     IValidator<UpdateSkuDto> updateValidator,
     ILogger<SkuService> logger) : ISkuService
 {
-    public async Task<Response<SkuDto>> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<Response<SkuDto>> GetByIdAsync(long id, long companyId, CancellationToken ct = default)
     {
         var sku = await skuRepository.GetByIdWithProductAsync(id, ct);
 
-        return sku is null
-            ? Response<SkuDto>.Fail("Sku not found", ErrorCode.NotFound)
-            : Response<SkuDto>.Ok(MapToDto(sku));
+        if (sku is null || sku.Product.CompanyId != companyId)
+        {
+            return Response<SkuDto>.Fail("Sku not found", ErrorCode.NotFound);
+        }
+
+        return Response<SkuDto>.Ok(MapToDto(sku));
     }
 
-    public async Task<Response<IReadOnlyList<SkuDto>>> GetAllAsync(CancellationToken ct = default)
+    public async Task<Response<IReadOnlyList<SkuDto>>> GetByProductAsync(long productId, long companyId,
+        CancellationToken ct = default)
     {
-        var skus = await skuRepository.GetAllAsync(ct);
-        return Response<IReadOnlyList<SkuDto>>.Ok(skus.Select(s => MapToDto(s)).ToList());
-    }
+        var product = await productRepository.GetByIdAsync(productId, ct);
+        if (product is null || product.CompanyId != companyId)
+        {
+            return Response<IReadOnlyList<SkuDto>>.Fail("Product not found", ErrorCode.NotFound);
+        }
 
-    public async Task<Response<IReadOnlyList<SkuDto>>> GetByProductAsync(long productId, CancellationToken ct = default)
-    {
         var skus = await skuRepository.GetByProductAsync(productId, ct);
         return Response<IReadOnlyList<SkuDto>>.Ok(skus.Select(s => MapToDto(s)).ToList());
     }
 
-    public async Task<Response<SkuDto>> CreateAsync(CreateSkuDto dto, CancellationToken ct = default)
+    public async Task<Response<SkuDto>> CreateAsync(CreateSkuDto dto, long companyId, CancellationToken ct = default)
     {
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -45,7 +49,7 @@ public class SkuService(
         }
 
         var productExists = await productRepository.GetByIdAsync(dto.ProductId, ct);
-        if (productExists is null)
+        if (productExists is null || productExists.CompanyId != companyId)
         {
             logger.LogWarning("Create sku failed: product not found [{ProductId}]", dto.ProductId);
             return Response<SkuDto>.Fail("Product not found", ErrorCode.NotFound);
@@ -62,13 +66,14 @@ public class SkuService(
 
         var created = await skuRepository.AddAsync(sku, ct);
 
-        logger.LogInformation("Sku created [{SkuId}] [{Barcode}] [{ProductId}]", 
+        logger.LogInformation("Sku created [{SkuId}] [{Barcode}] [{ProductId}]",
             created.Id, created.Barcode, created.ProductId);
 
         return Response<SkuDto>.Ok(MapToDto(created, productExists.Name));
     }
 
-    public async Task<Response<SkuDto>> UpdateAsync(long id, UpdateSkuDto dto, CancellationToken ct = default)
+    public async Task<Response<SkuDto>> UpdateAsync(long id, UpdateSkuDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -77,7 +82,7 @@ public class SkuService(
         }
 
         var sku = await skuRepository.GetByIdWithProductAsync(id, ct);
-        if (sku is null)
+        if (sku is null || sku.Product.CompanyId != companyId)
         {
             logger.LogWarning("Update sku failed: sku not found [{SkuId}]", id);
             return Response<SkuDto>.Fail("Sku not found", ErrorCode.NotFound);
@@ -94,10 +99,10 @@ public class SkuService(
         return Response<SkuDto>.Ok(MapToDto(sku));
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
     {
-        var sku = await skuRepository.GetByIdAsync(id, ct);
-        if (sku is null)
+        var sku = await skuRepository.GetByIdWithProductAsync(id, ct);
+        if (sku is null || sku.Product.CompanyId != companyId)
         {
             logger.LogWarning("Delete sku failed: sku not found [{SkuId}]", id);
             return Response<bool>.Fail("Sku not found", ErrorCode.NotFound);

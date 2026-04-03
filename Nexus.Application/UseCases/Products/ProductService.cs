@@ -16,28 +16,27 @@ public class ProductService(
     IValidator<UpdateProductDto> updateValidator,
     ILogger<ProductService> logger) : IProductService
 {
-    public async Task<Response<ProductDto>> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<Response<ProductDto>> GetByIdAsync(long id, long companyId, CancellationToken ct = default)
     {
         var product = await productRepository.GetByIdWithCategoryAsync(id, ct);
 
-        return product is null
-            ? Response<ProductDto>.Fail("Product not found", ErrorCode.NotFound)
-            : Response<ProductDto>.Ok(MapToDto(product));
+        if (product is null || product.CompanyId != companyId)
+        {
+            return Response<ProductDto>.Fail("Product not found", ErrorCode.NotFound);
+        }
+
+        return Response<ProductDto>.Ok(MapToDto(product));
     }
 
-    public async Task<Response<IReadOnlyList<ProductDto>>> GetAllAsync(CancellationToken ct = default)
-    {
-        var products = await productRepository.GetAllWithCategoryAsync(ct);
-        return Response<IReadOnlyList<ProductDto>>.Ok(products.Select(MapToDto).ToList());
-    }
-
-    public async Task<Response<IReadOnlyList<ProductDto>>> GetByCompanyAsync(long companyId, CancellationToken ct = default)
+    public async Task<Response<IReadOnlyList<ProductDto>>> GetByCompanyAsync(long companyId,
+        CancellationToken ct = default)
     {
         var products = await productRepository.GetByCompanyWithCategoryAsync(companyId, ct);
         return Response<IReadOnlyList<ProductDto>>.Ok(products.Select(MapToDto).ToList());
     }
 
-    public async Task<Response<ProductDto>> CreateAsync(CreateProductDto dto, CancellationToken ct = default)
+    public async Task<Response<ProductDto>> CreateAsync(CreateProductDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -45,47 +44,46 @@ public class ProductService(
             return validationResult.ToFailureResponse<ProductDto>();
         }
 
-        var companyExists = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
+        var companyExists = await companyRepository.GetByIdAsync(companyId, ct);
         if (companyExists is null)
         {
-            logger.LogWarning("Create product failed: company not found [{CompanyId}]", dto.CompanyId);
+            logger.LogWarning("Create product failed: company not found [{CompanyId}]", companyId);
             return Response<ProductDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
         if (dto.CategoryId.HasValue)
         {
             var categoryExists = await categoryRepository.GetByIdAsync(dto.CategoryId.Value, ct);
-            if (categoryExists is null)
+            if (categoryExists is null || categoryExists.CompanyId != companyId)
             {
                 logger.LogWarning("Create product failed: category not found [{CategoryId}]", dto.CategoryId.Value);
                 return Response<ProductDto>.Fail("Category not found", ErrorCode.NotFound);
             }
         }
 
-        if (await productRepository.ExistsByNameAsync(dto.CompanyId, dto.Name, ct: ct))
+        if (await productRepository.ExistsByNameAsync(companyId, dto.Name, ct: ct))
         {
             logger.LogWarning("Create product failed: product name already exists [{Name}] for company [{CompanyId}]",
-                dto.Name, dto.CompanyId);
-            return Response<ProductDto>.Fail("A product with this name already exists for this company", ErrorCode.Conflict);
+                dto.Name, companyId);
+            return Response<ProductDto>.Fail("A product with this name already exists for this company",
+                ErrorCode.Conflict);
         }
 
         var product = new Product
         {
-            CompanyId = dto.CompanyId,
-            CategoryId = dto.CategoryId,
-            Name = dto.Name,
-            Brand = dto.Brand
+            CompanyId = companyId, CategoryId = dto.CategoryId, Name = dto.Name, Brand = dto.Brand
         };
 
         var created = await productRepository.AddAsync(product, ct);
 
-        logger.LogInformation("Product created [{ProductId}] [{Name}] [{CompanyId}] [{CategoryId}]", 
+        logger.LogInformation("Product created [{ProductId}] [{Name}] [{CompanyId}] [{CategoryId}]",
             created.Id, created.Name, created.CompanyId, created.CategoryId);
 
         return Response<ProductDto>.Ok(MapToDto(created));
     }
 
-    public async Task<Response<ProductDto>> UpdateAsync(long id, UpdateProductDto dto, CancellationToken ct = default)
+    public async Task<Response<ProductDto>> UpdateAsync(long id, UpdateProductDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -94,7 +92,7 @@ public class ProductService(
         }
 
         var product = await productRepository.GetByIdWithCategoryAsync(id, ct);
-        if (product is null)
+        if (product is null || product.CompanyId != companyId)
         {
             logger.LogWarning("Update product failed: product not found [{ProductId}]", id);
             return Response<ProductDto>.Fail("Product not found", ErrorCode.NotFound);
@@ -114,7 +112,8 @@ public class ProductService(
         {
             logger.LogWarning("Update product failed: product name already exists [{Name}] for company [{CompanyId}]",
                 dto.Name, product.CompanyId);
-            return Response<ProductDto>.Fail("A product with this name already exists for this company", ErrorCode.Conflict);
+            return Response<ProductDto>.Fail("A product with this name already exists for this company",
+                ErrorCode.Conflict);
         }
 
         product.CategoryId = dto.CategoryId;
@@ -128,10 +127,10 @@ public class ProductService(
         return Response<ProductDto>.Ok(MapToDto(product));
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
     {
         var product = await productRepository.GetByIdAsync(id, ct);
-        if (product is null)
+        if (product is null || product.CompanyId != companyId)
         {
             logger.LogWarning("Delete product failed: product not found [{ProductId}]", id);
             return Response<bool>.Fail("Product not found", ErrorCode.NotFound);

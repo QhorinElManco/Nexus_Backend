@@ -9,13 +9,14 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CategoriesController(ICategoryService categoryService) : ControllerBase
+public class CategoriesController(ICategoryService categoryService, IClaimsExtractor claimsExtractor) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "categories.view")]
     public async Task<ActionResult<Response<IReadOnlyList<CategoryDto>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await categoryService.GetAllAsync(ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await categoryService.GetByCompanyAsync(companyId, ct);
         return result.ToActionResult();
     }
 
@@ -23,16 +24,8 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     [Authorize(Policy = "categories.view")]
     public async Task<ActionResult<Response<CategoryDto>>> GetById(long id, CancellationToken ct = default)
     {
-        var result = await categoryService.GetByIdAsync(id, ct);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("company/{companyId:long}")]
-    [Authorize(Policy = "categories.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<CategoryDto>>>> GetByCompany(long companyId,
-        CancellationToken ct = default)
-    {
-        var result = await categoryService.GetByCompanyAsync(companyId, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await categoryService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -41,7 +34,8 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     public async Task<ActionResult<Response<CategoryDto>>> Create([FromBody] CreateCategoryDto dto,
         CancellationToken ct = default)
     {
-        var result = await categoryService.CreateAsync(dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await categoryService.CreateAsync(dto, companyId, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
@@ -50,7 +44,8 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     public async Task<ActionResult<Response<CategoryDto>>> Update(long id, [FromBody] UpdateCategoryDto dto,
         CancellationToken ct = default)
     {
-        var result = await categoryService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await categoryService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -58,7 +53,8 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     [Authorize(Policy = "categories.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await categoryService.DeleteAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await categoryService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
 }

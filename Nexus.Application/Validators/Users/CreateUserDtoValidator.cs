@@ -21,8 +21,5 @@ public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
         RuleFor(x => x.FullName)
             .NotEmpty().WithMessage("FullName is required")
             .MaximumLength(100).WithMessage("FullName must be at most 100 characters");
-
-        RuleFor(x => x.CompanyId)
-            .GreaterThan(0).WithMessage("CompanyId must be greater than 0");
     }
 }

@@ -9,13 +9,15 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class WarehouseTypesController(IWarehouseTypeService warehouseTypeService) : ControllerBase
+public class WarehouseTypesController(IWarehouseTypeService warehouseTypeService, IClaimsExtractor claimsExtractor)
+    : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "warehousetypes.view")]
     public async Task<ActionResult<Response<IReadOnlyList<WarehouseTypeDto>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await warehouseTypeService.GetAllAsync(ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await warehouseTypeService.GetByCompanyAsync(companyId, ct);
         return result.ToActionResult();
     }
 
@@ -23,16 +25,8 @@ public class WarehouseTypesController(IWarehouseTypeService warehouseTypeService
     [Authorize(Policy = "warehousetypes.view")]
     public async Task<ActionResult<Response<WarehouseTypeDto>>> GetById(long id, CancellationToken ct = default)
     {
-        var result = await warehouseTypeService.GetByIdAsync(id, ct);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("company/{companyId:long}")]
-    [Authorize(Policy = "warehousetypes.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<WarehouseTypeDto>>>> GetByCompany(long companyId,
-        CancellationToken ct = default)
-    {
-        var result = await warehouseTypeService.GetByCompanyAsync(companyId, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await warehouseTypeService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -41,7 +35,8 @@ public class WarehouseTypesController(IWarehouseTypeService warehouseTypeService
     public async Task<ActionResult<Response<WarehouseTypeDto>>> Create([FromBody] CreateWarehouseTypeDto dto,
         CancellationToken ct = default)
     {
-        var result = await warehouseTypeService.CreateAsync(dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await warehouseTypeService.CreateAsync(dto, companyId, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
@@ -50,7 +45,8 @@ public class WarehouseTypesController(IWarehouseTypeService warehouseTypeService
     public async Task<ActionResult<Response<WarehouseTypeDto>>> Update(long id, [FromBody] UpdateWarehouseTypeDto dto,
         CancellationToken ct = default)
     {
-        var result = await warehouseTypeService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await warehouseTypeService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -58,7 +54,8 @@ public class WarehouseTypesController(IWarehouseTypeService warehouseTypeService
     [Authorize(Policy = "warehousetypes.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await warehouseTypeService.DeleteAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await warehouseTypeService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
 }
