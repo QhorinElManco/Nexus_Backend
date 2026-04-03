@@ -215,8 +215,8 @@ public class UserService(
             user.Id,
             user.Username,
             user.FullName,
-            user.CompanyId,
-            user.Company?.Name ?? string.Empty,
+            user.CompanyId ?? 0,  // 0 for superadmin
+            user.Company?.Name ?? (user.CompanyId == null ? "SuperAdmin" : string.Empty),
             user.IsActive,
             user.UserRoles.Select(ur => new RoleDto(ur.Role.Id, ur.Role.Name, ur.Role.Description)).ToList(),
             user.CreatedAt,

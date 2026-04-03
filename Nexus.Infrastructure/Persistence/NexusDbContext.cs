@@ -54,9 +54,15 @@ public class NexusDbContext(DbContextOptions<NexusDbContext> options, IClaimsExt
     {
         // Get current companyId from claims extractor
         long? companyId = null;
+        bool isSuperAdmin = false;
+
         try
         {
-            companyId = claimsExtractor?.GetCurrentCompanyId();
+            isSuperAdmin = claimsExtractor?.IsSuperAdmin() ?? false;
+            if (!isSuperAdmin)
+            {
+                companyId = claimsExtractor?.GetCurrentCompanyId();
+            }
         }
         catch
         {
@@ -64,7 +70,13 @@ public class NexusDbContext(DbContextOptions<NexusDbContext> options, IClaimsExt
             // This allows seed operations to work
         }
 
-        // If no companyId and not superadmin, apply global filtering
+        // If superadmin, skip all filters - can see everything
+        if (isSuperAdmin)
+        {
+            return;
+        }
+
+        // If no companyId, apply global filtering
         if (companyId.HasValue)
         {
             // Products
@@ -112,8 +124,7 @@ public class NexusDbContext(DbContextOptions<NexusDbContext> options, IClaimsExt
             // CustomerAssignments - filter by user's company through Customer
             modelBuilder.Entity<CustomerAssignment>().HasQueryFilter(ca =>
                 claimsExtractor != null &&
-                (claimsExtractor.GetCurrentCompanyId() == 0 ||
-                 EF.Property<long>(ca.Customer, "CompanyId") == companyId));
+                (EF.Property<long>(ca.Customer, "CompanyId") == companyId));
 
             // SmartInventory - filter through Warehouse -> Company
             modelBuilder.Entity<SmartInventory>().HasQueryFilter(si =>

@@ -4,7 +4,7 @@ public record UserDto(
     long Id,
     string Username,
     string FullName,
-    long CompanyId,
+    long? CompanyId,
     string CompanyName,
     bool IsActive,
     IReadOnlyList<RoleDto> Roles,

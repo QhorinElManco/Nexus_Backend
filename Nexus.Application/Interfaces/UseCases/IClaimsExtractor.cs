@@ -7,4 +7,5 @@ public interface IClaimsExtractor
     public IReadOnlyList<string> GetCurrentRoles();
     public IReadOnlyList<string> GetCurrentPermissions();
     public bool TryGetCurrentCompanyId(out long companyId);
+    public bool IsSuperAdmin();
 }

@@ -15,7 +15,7 @@ public class DataSeedService(
     IPasswordHasher passwordHasher,
     ILogger<DataSeedService> logger) : IDataSeedService
 {
-    private static readonly List<SeedAccessDto> AccessDefinitions =
+    private static readonly List<SeedAccessDto> _accessDefinitions =
     [
         new("users.view", "Ver usuarios"),
         new("users.manage", "Crear, editar y eliminar usuarios"),
@@ -53,7 +53,7 @@ public class DataSeedService(
         new("accesses.manage", "Crear, editar y eliminar permisos")
     ];
 
-    private static readonly List<SeedRoleDto> RoleDefinitions =
+    private static readonly List<SeedRoleDto> _roleDefinitions =
     [
         new(
             "Admin",
@@ -168,11 +168,39 @@ public class DataSeedService(
     public async Task SeedAsync(CancellationToken ct = default)
     {
         logger.LogInformation("Starting data seed process");
+        await SeedSuperAdminAsync(ct);
         await SeedCompanyAsync(ct);
         await SeedPermissionsAsync(ct);
         await SeedRolesAsync(ct);
         await SeedAdminUserAsync(ct);
         logger.LogInformation("Data seed process completed successfully");
+    }
+
+    private async Task SeedSuperAdminAsync(CancellationToken ct)
+    {
+        const string superAdminUsername = "superadmin";
+
+        if (await userRepository.ExistsByUsernameAsync(superAdminUsername, ct: ct))
+        {
+            logger.LogWarning("Seed superadmin: skipped - user [{Username}] already exists", superAdminUsername);
+            return;
+        }
+
+        var password = Environment.GetEnvironmentVariable("NEXUS_SUPERADMIN_PASSWORD") ?? "SuperAdmin123!";
+        var superAdminUser = new User
+        {
+            Username = superAdminUsername,
+            PasswordHash = passwordHasher.Hash(password),
+            FullName = "Super Administrator",
+            CompanyId = null, // null = superadmin
+            IsActive = true
+        };
+
+        context.Users.Add(superAdminUser);
+        await context.SaveChangesAsync(ct);
+
+        logger.LogInformation("Seed superadmin: created [{Username}] [{UserId}]", superAdminUsername,
+            superAdminUser.Id);
     }
 
     private async Task SeedCompanyAsync(CancellationToken ct)
@@ -196,12 +224,12 @@ public class DataSeedService(
     private async Task SeedPermissionsAsync(CancellationToken ct)
     {
         var existingNames = context.Permissions.Select(a => a.Name).ToList();
-        var newPermissions = AccessDefinitions.Where(a => !existingNames.Contains(a.Name)).ToList();
+        var newPermissions = _accessDefinitions.Where(a => !existingNames.Contains(a.Name)).ToList();
 
         if (newPermissions.Count == 0)
         {
             logger.LogWarning("Seed permissions: skipped - all {TotalCount} permissions already exist",
-                AccessDefinitions.Count);
+                _accessDefinitions.Count);
             return;
         }
 
@@ -213,18 +241,18 @@ public class DataSeedService(
         await context.SaveChangesAsync(ct);
 
         logger.LogInformation("Seed permissions: created {Count} new permissions out of {TotalCount}",
-            newPermissions.Count, AccessDefinitions.Count);
+            newPermissions.Count, _accessDefinitions.Count);
     }
 
     private async Task SeedRolesAsync(CancellationToken ct)
     {
         var company = await context.Companies.FirstAsync(c => c.Name == "Demo Company", ct);
         var existingRoles = context.Roles.Where(r => r.CompanyId == company.Id).Select(r => r.Name).ToList();
-        var newRoles = RoleDefinitions.Where(r => !existingRoles.Contains(r.Name)).ToList();
+        var newRoles = _roleDefinitions.Where(r => !existingRoles.Contains(r.Name)).ToList();
 
         if (newRoles.Count == 0)
         {
-            logger.LogWarning("Seed roles: skipped - all {TotalCount} roles already exist", RoleDefinitions.Count);
+            logger.LogWarning("Seed roles: skipped - all {TotalCount} roles already exist", _roleDefinitions.Count);
             return;
         }
 
@@ -249,7 +277,7 @@ public class DataSeedService(
         await context.SaveChangesAsync(ct);
 
         logger.LogInformation("Seed roles: created {Count} new roles out of {TotalCount}", newRoles.Count,
-            RoleDefinitions.Count);
+            _roleDefinitions.Count);
     }
 
     private async Task SeedAdminUserAsync(CancellationToken ct)

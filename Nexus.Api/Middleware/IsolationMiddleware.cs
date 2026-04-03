@@ -11,9 +11,22 @@ public class IsolationMiddleware(RequestDelegate next, ILogger<IsolationMiddlewa
             return;
         }
 
-        // Extract company_id from JWT claims
+        // Check if superadmin
+        var isSuperAdminClaim = context.User.FindFirst("is_superadmin");
+        var isSuperAdmin = string.Equals(isSuperAdminClaim?.Value, "true", StringComparison.OrdinalIgnoreCase);
+
+        // For superadmin, store 0 to indicate "no filter"
+        if (isSuperAdmin)
+        {
+            context.Items["CompanyId"] = 0L;
+            logger.LogDebug("Company isolation: SuperAdmin detected - bypassing company filter");
+            await next(context);
+            return;
+        }
+
+        // Extract company_id from JWT claims for regular users
         var companyIdClaim = context.User.FindFirst("company_id");
-        if (companyIdClaim != null && long.TryParse(companyIdClaim.Value, out var companyId))
+        if (companyIdClaim != null && long.TryParse(companyIdClaim.Value, out var companyId) && companyId > 0)
         {
             // Store in HttpContext.Items for downstream access
             context.Items["CompanyId"] = companyId;

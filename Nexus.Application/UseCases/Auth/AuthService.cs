@@ -134,12 +134,16 @@ public class AuthService(
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            var isSuperAdmin = user.CompanyId == null;
+            var companyIdValue = user.CompanyId?.ToString(CultureInfo.InvariantCulture) ?? "0";
+
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString(CultureInfo.InvariantCulture)),
                 new(ClaimTypes.Name, user.Username),
                 new(ClaimTypes.GivenName, user.FullName),
-                new("company_id", user.CompanyId.ToString(CultureInfo.InvariantCulture))
+                new("company_id", companyIdValue),
+                new("is_superadmin", isSuperAdmin.ToString(CultureInfo.InvariantCulture).ToLowerInvariant())
             };
 
             claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
@@ -205,8 +209,8 @@ public class AuthService(
             user.Id,
             user.Username,
             user.FullName,
-            user.CompanyId,
-            string.Empty,
+            user.CompanyId ?? 0,  // 0 for superadmin
+            user.Company?.Name ?? (user.CompanyId == null ? "SuperAdmin" : string.Empty),
             user.IsActive,
             user.UserRoles.Select(ur => new RoleDto(ur.Role.Id, ur.Role.Name, ur.Role.Description)).ToList(),
             user.CreatedAt,

@@ -67,4 +67,17 @@ public class ClaimsExtractor(IHttpContextAccessor httpContextAccessor) : IClaims
             return false;
         }
     }
+
+    public bool IsSuperAdmin()
+    {
+        try
+        {
+            var isSuperAdminClaim = User?.FindFirst("is_superadmin");
+            return string.Equals(isSuperAdminClaim?.Value, "true", StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
