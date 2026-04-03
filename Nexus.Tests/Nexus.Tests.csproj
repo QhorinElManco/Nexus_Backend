@@ -9,17 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <Using Include="Xunit"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nexus.Application\Nexus.Application.csproj" />
-    <ProjectReference Include="..\Nexus.Api\Nexus.Api.csproj" />
+    <ProjectReference Include="..\Nexus.Application\Nexus.Application.csproj"/>
+    <ProjectReference Include="..\Nexus.Api\Nexus.Api.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" />
-    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Moq"/>
+    <PackageReference Include="xunit.v3"/>
   </ItemGroup>
 
 </Project>

@@ -15,7 +15,13 @@ public enum ErrorCode
 
 public static class ErrorCodeExtensions
 {
-    public static string ToCodeString(this ErrorCode code) => code.ToString();
+    public static string ToCodeString(this ErrorCode code)
+    {
+        return code.ToString();
+    }
 
-    public static int ToHttpStatusCode(this ErrorCode code) => (int)code;
+    public static int ToHttpStatusCode(this ErrorCode code)
+    {
+        return (int)code;
+    }
 }

@@ -119,4 +119,5 @@ public class MyService
 - `LoggingExtensions.cs` es `internal` — `DependencyInjection.cs` expone la superficie pública de la capa.
 - La tabla de logs en PostgreSQL puede crearse automáticamente si `NeedAutoCreateTable` está activo.
 - Ajusta `appsettings.json` según tu entorno y necesidades de retención/rotación.
-- Los warnings CA1848 y CA1873 están suprimidos globalmente en `Directory.Build.props` para simplificar el uso de logging.
+- Los warnings CA1848 y CA1873 están suprimidos globalmente en `Directory.Build.props` para simplificar el uso de
+  logging.

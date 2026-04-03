@@ -42,7 +42,7 @@ public class SuppliersController(ISupplierService supplierService, IClaimsExtrac
 
     [HttpPost]
     [Authorize(Policy = "suppliers.manage")]
-    public async Task<ActionResult<Response<SupplierDto>>> Create([FromBody] CreateSupplierDto dto, 
+    public async Task<ActionResult<Response<SupplierDto>>> Create([FromBody] CreateSupplierDto dto,
         CancellationToken ct = default)
     {
         var companyId = claimsExtractor.GetCurrentCompanyId();

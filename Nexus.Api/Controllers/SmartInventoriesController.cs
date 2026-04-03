@@ -9,7 +9,8 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SmartInventoriesController(ISmartInventoryService smartInventoryService, IClaimsExtractor claimsExtractor) : ControllerBase
+public class SmartInventoriesController(ISmartInventoryService smartInventoryService, IClaimsExtractor claimsExtractor)
+    : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "smartinventories.view")]

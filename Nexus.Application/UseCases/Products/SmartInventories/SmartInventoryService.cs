@@ -28,7 +28,6 @@ public class SmartInventoryService(
 
         logger.LogWarning("Get SmartInventory failed: not found [{SmartInventoryId}] [{CompanyId}]", id, companyId);
         return Response<SmartInventoryDto>.Fail("SmartInventory not found", ErrorCode.NotFound);
-
     }
 
     public async Task<Response<IReadOnlyList<SmartInventoryDto>>> GetAllAsync(long companyId,

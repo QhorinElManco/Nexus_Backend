@@ -31,7 +31,7 @@ public class IsolationMiddlewareTests
     public async Task InvokeAsync_WhenNotAuthenticated_SkipsProcessing()
     {
         // Arrange
-        var context = CreateHttpContext(user: null);
+        var context = CreateHttpContext(null);
         _mockNext.Setup(n => n.Invoke(It.IsAny<HttpContext>())).Returns(Task.CompletedTask);
 
         var middleware = CreateMiddleware();

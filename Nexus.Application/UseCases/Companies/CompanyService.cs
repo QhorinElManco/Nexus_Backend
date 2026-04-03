@@ -69,7 +69,8 @@ public class CompanyService(
         var company = new Company { Name = dto.Name, TaxId = dto.TaxId, IsActive = true };
         var created = await repository.AddAsync(company, ct);
 
-        logger.LogInformation("Company created [{CompanyId}] [{Name}] [{TaxId}]", created.Id, created.Name, created.TaxId);
+        logger.LogInformation("Company created [{CompanyId}] [{Name}] [{TaxId}]", created.Id, created.Name,
+            created.TaxId);
 
         return Response<CompanyDto>.Ok(MapToDto(created), "Company created successfully");
     }

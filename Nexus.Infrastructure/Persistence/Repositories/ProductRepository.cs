@@ -85,7 +85,8 @@ public class ProductRepository(NexusDbContext context) : IProductRepository
             .ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyList<Product>> GetByCompanyWithCategoryAsync(long companyId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Product>> GetByCompanyWithCategoryAsync(long companyId,
+        CancellationToken ct = default)
     {
         return await context.Products
             .AsNoTracking()
