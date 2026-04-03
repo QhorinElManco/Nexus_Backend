@@ -23,6 +23,10 @@ public static class DependencyInjection
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
+        // Claims extractor for company isolation
+        services.AddHttpContextAccessor();
+        services.AddScoped<IClaimsExtractor, ClaimsExtractor>();
+
         services.AddScoped<IAccessService, AccessService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ICompanyService, CompanyService>();

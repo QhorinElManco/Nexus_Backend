@@ -9,13 +9,14 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CustomersController(ICustomerService customerService) : ControllerBase
+public class CustomersController(ICustomerService customerService, IClaimsExtractor claimsExtractor) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "customers.view")]
     public async Task<ActionResult<Response<IReadOnlyList<CustomerDto>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await customerService.GetAllAsync(ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await customerService.GetByCompanyAsync(companyId, ct);
         return result.ToActionResult();
     }
 
@@ -23,7 +24,8 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     [Authorize(Policy = "customers.view")]
     public async Task<ActionResult<Response<CustomerDto>>> GetById(long id, CancellationToken ct = default)
     {
-        var result = await customerService.GetByIdAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await customerService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -32,7 +34,9 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     public async Task<ActionResult<ResponsePagination<CustomerDto>>> Search([FromQuery] CustomerSearchRequest request,
         CancellationToken ct = default)
     {
-        var result = await customerService.SearchAsync(request, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var requestWithCompany = request with { CompanyId = companyId };
+        var result = await customerService.SearchAsync(requestWithCompany, ct);
         return result.ToActionResult();
     }
 
@@ -40,16 +44,8 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     [Authorize(Policy = "customers.view")]
     public async Task<ActionResult<Response<CustomerDto>>> GetByTaxId(string taxId, CancellationToken ct = default)
     {
-        var result = await customerService.GetByTaxIdAsync(taxId, ct);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("company/{companyId:long}")]
-    [Authorize(Policy = "customers.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<CustomerDto>>>> GetByCompany(long companyId,
-        CancellationToken ct = default)
-    {
-        var result = await customerService.GetByCompanyAsync(companyId, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await customerService.GetByTaxIdAsync(taxId, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -58,7 +54,9 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     public async Task<ActionResult<Response<CustomerDto>>> Create([FromBody] CreateCustomerDto dto,
         CancellationToken ct = default)
     {
-        var result = await customerService.CreateAsync(dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var dtoWithCompany = dto with { CompanyId = companyId };
+        var result = await customerService.CreateAsync(dtoWithCompany, ct);
         return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
@@ -67,7 +65,8 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     public async Task<ActionResult<Response<CustomerDto>>> Update(long id, [FromBody] UpdateCustomerDto dto,
         CancellationToken ct = default)
     {
-        var result = await customerService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await customerService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -75,7 +74,8 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     [Authorize(Policy = "customers.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await customerService.DeleteAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await customerService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
 }

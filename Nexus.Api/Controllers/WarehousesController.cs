@@ -9,22 +9,22 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class WarehousesController(IWarehouseService warehouseService) : ControllerBase
+public class WarehousesController(IWarehouseService warehouseService, IClaimsExtractor claimsExtractor) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "warehouses.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<WarehouseDto>>>> GetAll([FromQuery] long companyId,
-        CancellationToken ct = default)
+    public async Task<ActionResult<Response<IReadOnlyList<WarehouseDto>>>> GetAll(CancellationToken ct = default)
     {
+        var companyId = claimsExtractor.GetCurrentCompanyId();
         var result = await warehouseService.GetAllAsync(companyId, ct);
         return result.ToActionResult();
     }
 
     [HttpGet("{id:long}")]
     [Authorize(Policy = "warehouses.view")]
-    public async Task<ActionResult<Response<WarehouseDto>>> GetById(long id, [FromQuery] long companyId,
-        CancellationToken ct = default)
+    public async Task<ActionResult<Response<WarehouseDto>>> GetById(long id, CancellationToken ct = default)
     {
+        var companyId = claimsExtractor.GetCurrentCompanyId();
         var result = await warehouseService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
@@ -34,8 +34,10 @@ public class WarehousesController(IWarehouseService warehouseService) : Controll
     public async Task<ActionResult<Response<WarehouseDto>>> Create([FromBody] CreateWarehouseDto dto, 
         CancellationToken ct = default)
     {
-        var result = await warehouseService.CreateAsync(dto, ct);
-        return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id, companyId = dto.CompanyId });
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var dtoWithCompany = dto with { CompanyId = companyId };
+        var result = await warehouseService.CreateAsync(dtoWithCompany, companyId, ct);
+        return result.ToCreatedAtActionResult(nameof(GetById), new { id = result.Data!.Id });
     }
 
     [HttpPut("{id:long}")]
@@ -43,7 +45,8 @@ public class WarehousesController(IWarehouseService warehouseService) : Controll
     public async Task<ActionResult<Response<WarehouseDto>>> Update(long id,
         [FromBody] UpdateWarehouseDto dto, CancellationToken ct = default)
     {
-        var result = await warehouseService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await warehouseService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
@@ -51,7 +54,8 @@ public class WarehousesController(IWarehouseService warehouseService) : Controll
     [Authorize(Policy = "warehouses.manage")]
     public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
-        var result = await warehouseService.DeleteAsync(id, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await warehouseService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
 }

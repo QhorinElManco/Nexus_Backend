@@ -47,11 +47,11 @@ public class CustomerRepository(NexusDbContext context) : ICustomerRepository
         }
     }
 
-    public async Task<Customer?> GetByTaxIdAsync(string taxId, CancellationToken ct = default)
+    public async Task<Customer?> GetByTaxIdAsync(string taxId, long companyId, CancellationToken ct = default)
     {
         return await context.Customers
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.TaxId == taxId, ct);
+            .FirstOrDefaultAsync(c => c.TaxId == taxId && c.CompanyId == companyId, ct);
     }
 
     public async Task<Customer?> GetByIdWithAssignmentsAsync(long id, CancellationToken ct = default)
@@ -72,9 +72,10 @@ public class CustomerRepository(NexusDbContext context) : ICustomerRepository
             .ToListAsync(ct);
     }
 
-    public async Task<bool> ExistsByTaxIdAsync(string taxId, long? excludeId = null, CancellationToken ct = default)
+    public async Task<bool> ExistsByTaxIdAsync(string taxId, long companyId, long? excludeId = null,
+        CancellationToken ct = default)
     {
-        var query = context.Customers.Where(c => c.TaxId == taxId);
+        var query = context.Customers.Where(c => c.TaxId == taxId && c.CompanyId == companyId);
 
         if (excludeId.HasValue)
         {

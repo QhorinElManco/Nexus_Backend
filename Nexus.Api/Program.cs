@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Nexus.Api.Authorization;
 using Nexus.Api.Extensions;
+using Nexus.Api.Middleware;
 using Nexus.Api.OpenApi;
 using Nexus.Application;
 using Nexus.Application.Interfaces.UseCases;
@@ -107,6 +108,7 @@ app.MapAppHealthChecks();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<IsolationMiddleware>();
 app.MapControllers();
 
 var seedDataSettings = builder.Configuration.GetSection(SeedDataSettings.SectionName).Get<SeedDataSettings>();

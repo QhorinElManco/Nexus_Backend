@@ -16,22 +16,17 @@ public class CustomerService(
     IValidator<CustomerSearchRequest> searchValidator,
     ILogger<CustomerService> logger) : ICustomerService
 {
-    public async Task<Response<CustomerDto>> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<Response<CustomerDto>> GetByIdAsync(long id, long companyId, CancellationToken ct = default)
     {
         var customer = await customerRepository.GetByIdWithAssignmentsAsync(id, ct);
 
-        return customer is null
+        return customer is null || customer.CompanyId != companyId
             ? Response<CustomerDto>.Fail("Customer not found", ErrorCode.NotFound)
             : Response<CustomerDto>.Ok(MapToDto(customer));
     }
 
-    public async Task<Response<IReadOnlyList<CustomerDto>>> GetAllAsync(CancellationToken ct = default)
-    {
-        var customers = await customerRepository.GetAllAsync(ct);
-        return Response<IReadOnlyList<CustomerDto>>.Ok(customers.Select(MapToDto).ToList());
-    }
-
-    public async Task<ResponsePagination<CustomerDto>> SearchAsync(CustomerSearchRequest request, CancellationToken ct = default)
+    public async Task<ResponsePagination<CustomerDto>> SearchAsync(CustomerSearchRequest request,
+        CancellationToken ct = default)
     {
         var validationResult = await searchValidator.ValidateAsync(request, ct);
         if (!validationResult.IsValid)
@@ -63,7 +58,7 @@ public class CustomerService(
             return Response<CustomerDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
-        if (await customerRepository.ExistsByTaxIdAsync(dto.TaxId, ct: ct))
+        if (await customerRepository.ExistsByTaxIdAsync(dto.TaxId, dto.CompanyId, ct: ct))
         {
             logger.LogWarning("Create customer failed: TaxId already exists [{TaxId}]", dto.TaxId);
             return Response<CustomerDto>.Fail("TaxId already exists", ErrorCode.Conflict);
@@ -83,12 +78,14 @@ public class CustomerService(
         var created = await customerRepository.AddAsync(customer, ct);
         var customerWithRelations = await customerRepository.GetByIdWithAssignmentsAsync(created.Id, ct);
 
-        logger.LogInformation("Customer created [{CustomerId}] [{Name}] [{CompanyId}]", created.Id, created.Name, created.CompanyId);
+        logger.LogInformation("Customer created [{CustomerId}] [{Name}] [{CompanyId}]", created.Id, created.Name,
+            created.CompanyId);
 
         return Response<CustomerDto>.Ok(MapToDto(customerWithRelations!));
     }
 
-    public async Task<Response<CustomerDto>> UpdateAsync(long id, UpdateCustomerDto dto, CancellationToken ct = default)
+    public async Task<Response<CustomerDto>> UpdateAsync(long id, UpdateCustomerDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -97,7 +94,7 @@ public class CustomerService(
         }
 
         var customer = await customerRepository.GetByIdAsync(id, ct);
-        if (customer is null)
+        if (customer is null || customer.CompanyId != companyId)
         {
             logger.LogWarning("Update customer failed: customer not found [{CustomerId}]", id);
             return Response<CustomerDto>.Fail("Customer not found", ErrorCode.NotFound);
@@ -118,10 +115,10 @@ public class CustomerService(
         return Response<CustomerDto>.Ok(MapToDto(customerWithRelations!));
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
     {
         var customer = await customerRepository.GetByIdAsync(id, ct);
-        if (customer is null)
+        if (customer is null || customer.CompanyId != companyId)
         {
             logger.LogWarning("Delete customer failed: customer not found [{CustomerId}]", id);
             return Response<bool>.Fail("Customer not found", ErrorCode.NotFound);
@@ -134,16 +131,18 @@ public class CustomerService(
         return Response<bool>.Ok(true);
     }
 
-    public async Task<Response<CustomerDto>> GetByTaxIdAsync(string taxId, CancellationToken ct = default)
+    public async Task<Response<CustomerDto>> GetByTaxIdAsync(string taxId, long companyId,
+        CancellationToken ct = default)
     {
-        var customer = await customerRepository.GetByTaxIdAsync(taxId, ct);
+        var customer = await customerRepository.GetByTaxIdAsync(taxId, companyId, ct);
 
-        return customer is null
+        return customer is null || customer.CompanyId != companyId
             ? Response<CustomerDto>.Fail("Customer not found", ErrorCode.NotFound)
             : Response<CustomerDto>.Ok(MapToDto(customer));
     }
 
-    public async Task<Response<IReadOnlyList<CustomerDto>>> GetByCompanyAsync(long companyId, CancellationToken ct = default)
+    public async Task<Response<IReadOnlyList<CustomerDto>>> GetByCompanyAsync(long companyId,
+        CancellationToken ct = default)
     {
         var customers = await customerRepository.GetByCompanyAsync(companyId, ct);
         return Response<IReadOnlyList<CustomerDto>>.Ok(customers.Select(MapToDto).ToList());
@@ -154,7 +153,7 @@ public class CustomerService(
         return new CustomerDto(
             customer.Id,
             customer.CompanyId,
-            customer.Company?.Name ?? string.Empty,
+            customer.Company.Name,
             customer.Name,
             customer.TradeName,
             customer.TaxId,

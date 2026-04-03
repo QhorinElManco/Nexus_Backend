@@ -19,13 +19,13 @@ public class SupplierService(
     {
         var supplier = await repository.GetByIdAsync(id, ct);
 
-        if (supplier is null || supplier.CompanyId != companyId)
+        if (supplier is not null && supplier.CompanyId == companyId)
         {
-            logger.LogWarning("Get supplier failed: supplier not found [{SupplierId}] [{CompanyId}]", id, companyId);
-            return Response<SupplierDto>.Fail("Supplier not found", ErrorCode.NotFound);
+            return Response<SupplierDto>.Ok(MapToDto(supplier));
         }
 
-        return Response<SupplierDto>.Ok(MapToDto(supplier));
+        logger.LogWarning("Get supplier failed: supplier not found [{SupplierId}] [{CompanyId}]", id, companyId);
+        return Response<SupplierDto>.Fail("Supplier not found", ErrorCode.NotFound);
     }
 
     public async Task<Response<IReadOnlyList<SupplierDto>>> GetAllAsync(long companyId, CancellationToken ct = default)
@@ -58,7 +58,8 @@ public class SupplierService(
             totalCount);
     }
 
-    public async Task<Response<SupplierDto>> CreateAsync(long companyId, CreateSupplierDto dto, CancellationToken ct = default)
+    public async Task<Response<SupplierDto>> CreateAsync(long companyId, CreateSupplierDto dto,
+        CancellationToken ct = default)
     {
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -68,20 +69,21 @@ public class SupplierService(
 
         if (await repository.ExistsByTaxIdAsync(companyId, dto.TaxId, ct))
         {
-            logger.LogWarning("Create supplier failed: TaxId already exists [{CompanyId}] [{TaxId}]", companyId, dto.TaxId);
+            logger.LogWarning("Create supplier failed: TaxId already exists [{CompanyId}] [{TaxId}]", companyId,
+                dto.TaxId);
             return Response<SupplierDto>.Fail("A supplier with this TaxId already exists", ErrorCode.Conflict);
         }
 
         var supplier = new Supplier { CompanyId = companyId, Name = dto.Name, TaxId = dto.TaxId };
         var created = await repository.AddAsync(supplier, ct);
 
-        logger.LogInformation("Supplier created [{SupplierId}] [{CompanyId}] [{Name}] [{TaxId}]", 
+        logger.LogInformation("Supplier created [{SupplierId}] [{CompanyId}] [{Name}] [{TaxId}]",
             created.Id, created.CompanyId, created.Name, created.TaxId);
 
         return Response<SupplierDto>.Ok(MapToDto(created), "Supplier created successfully");
     }
 
-    public async Task<Response<SupplierDto>> UpdateAsync(long id, UpdateSupplierDto dto,
+    public async Task<Response<SupplierDto>> UpdateAsync(long id, UpdateSupplierDto dto, long companyId,
         CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
@@ -91,13 +93,11 @@ public class SupplierService(
         }
 
         var supplier = await repository.GetByIdAsync(id, ct);
-        if (supplier is null)
+        if (supplier is null || supplier.CompanyId != companyId)
         {
-            logger.LogWarning("Update supplier failed: supplier not found [{SupplierId}]", id);
+            logger.LogWarning("Update supplier failed: supplier not found [{SupplierId}] [{CompanyId}]", id, companyId);
             return Response<SupplierDto>.Fail("Supplier not found", ErrorCode.NotFound);
         }
-
-        var companyId = supplier.CompanyId;
 
         supplier.Name = dto.Name;
 
@@ -108,20 +108,18 @@ public class SupplierService(
         return Response<SupplierDto>.Ok(MapToDto(supplier), "Supplier updated successfully");
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
     {
         var supplier = await repository.GetByIdAsync(id, ct);
-        if (supplier is null)
+        if (supplier is null || supplier.CompanyId != companyId)
         {
-            logger.LogWarning("Delete supplier failed: supplier not found [{SupplierId}]", id);
+            logger.LogWarning("Delete supplier failed: supplier not found [{SupplierId}] [{CompanyId}]", id, companyId);
             return Response<bool>.Fail("Supplier not found", ErrorCode.NotFound);
         }
 
-        var companyId = supplier.CompanyId;
-
         await repository.DeleteAsync(id, ct);
 
-        logger.LogInformation("Supplier deleted (soft-delete) [{SupplierId}] [{CompanyId}] [{Name}]", 
+        logger.LogInformation("Supplier deleted (soft-delete) [{SupplierId}] [{CompanyId}] [{Name}]",
             id, companyId, supplier.Name);
 
         return Response<bool>.Ok(true, "Supplier deleted successfully");

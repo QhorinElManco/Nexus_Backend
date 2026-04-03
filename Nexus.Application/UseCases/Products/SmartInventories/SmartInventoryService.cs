@@ -21,13 +21,14 @@ public class SmartInventoryService(
     {
         var smartInventory = await repository.GetByIdAsync(id, ct);
 
-        if (smartInventory is null || smartInventory.Warehouse.CompanyId != companyId)
+        if (smartInventory is not null && smartInventory.Warehouse.CompanyId == companyId)
         {
-            logger.LogWarning("Get SmartInventory failed: not found [{SmartInventoryId}] [{CompanyId}]", id, companyId);
-            return Response<SmartInventoryDto>.Fail("SmartInventory not found", ErrorCode.NotFound);
+            return Response<SmartInventoryDto>.Ok(MapToDto(smartInventory));
         }
 
-        return Response<SmartInventoryDto>.Ok(MapToDto(smartInventory));
+        logger.LogWarning("Get SmartInventory failed: not found [{SmartInventoryId}] [{CompanyId}]", id, companyId);
+        return Response<SmartInventoryDto>.Fail("SmartInventory not found", ErrorCode.NotFound);
+
     }
 
     public async Task<Response<IReadOnlyList<SmartInventoryDto>>> GetAllAsync(long companyId,
@@ -131,7 +132,7 @@ public class SmartInventoryService(
         return Response<SmartInventoryDto>.Ok(MapToDto(createdWithRelations!), "SmartInventory created successfully");
     }
 
-    public async Task<Response<SmartInventoryDto>> UpdateAsync(long id, UpdateSmartInventoryDto dto,
+    public async Task<Response<SmartInventoryDto>> UpdateAsync(long id, UpdateSmartInventoryDto dto, long companyId,
         CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
@@ -141,13 +142,12 @@ public class SmartInventoryService(
         }
 
         var existing = await repository.GetByIdAsync(id, ct);
-        if (existing is null)
+        if (existing is null || existing.Warehouse.CompanyId != companyId)
         {
-            logger.LogWarning("Update SmartInventory failed: not found [{SmartInventoryId}]", id);
+            logger.LogWarning("Update SmartInventory failed: not found [{SmartInventoryId}] [{CompanyId}]", id,
+                companyId);
             return Response<SmartInventoryDto>.Fail("SmartInventory not found", ErrorCode.NotFound);
         }
-
-        var companyId = existing.Warehouse.CompanyId;
 
         // If SupplierId is being updated, validate it belongs to same company as warehouse
         if (dto.SupplierId.HasValue)

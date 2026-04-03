@@ -5,12 +5,17 @@ namespace Nexus.Application.Interfaces.UseCases;
 
 public interface ICustomerService
 {
-    public Task<Response<CustomerDto>> GetByIdAsync(long id, CancellationToken ct = default);
-    public Task<Response<IReadOnlyList<CustomerDto>>> GetAllAsync(CancellationToken ct = default);
-    public Task<ResponsePagination<CustomerDto>> SearchAsync(CustomerSearchRequest request, CancellationToken ct = default);
-    public Task<Response<CustomerDto>> CreateAsync(CreateCustomerDto dto, CancellationToken ct = default);
-    public Task<Response<CustomerDto>> UpdateAsync(long id, UpdateCustomerDto dto, CancellationToken ct = default);
-    public Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default);
-    public Task<Response<CustomerDto>> GetByTaxIdAsync(string taxId, CancellationToken ct = default);
+    public Task<Response<CustomerDto>> GetByIdAsync(long id, long companyId, CancellationToken ct = default);
     public Task<Response<IReadOnlyList<CustomerDto>>> GetByCompanyAsync(long companyId, CancellationToken ct = default);
+
+    public Task<ResponsePagination<CustomerDto>> SearchAsync(CustomerSearchRequest request,
+        CancellationToken ct = default);
+
+    public Task<Response<CustomerDto>> CreateAsync(CreateCustomerDto dto, CancellationToken ct = default);
+
+    public Task<Response<CustomerDto>> UpdateAsync(long id, UpdateCustomerDto dto, long companyId,
+        CancellationToken ct = default);
+
+    public Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default);
+    public Task<Response<CustomerDto>> GetByTaxIdAsync(string taxId, long companyId, CancellationToken ct = default);
 }

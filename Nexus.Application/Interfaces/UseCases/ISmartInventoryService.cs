@@ -14,7 +14,7 @@ public interface ISmartInventoryService
 
     public Task<Response<SmartInventoryDto>> CreateAsync(CreateSmartInventoryDto dto, CancellationToken ct = default);
 
-    public Task<Response<SmartInventoryDto>> UpdateAsync(long id, UpdateSmartInventoryDto dto,
+    public Task<Response<SmartInventoryDto>> UpdateAsync(long id, UpdateSmartInventoryDto dto, long companyId,
         CancellationToken ct = default);
 
     public Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default);

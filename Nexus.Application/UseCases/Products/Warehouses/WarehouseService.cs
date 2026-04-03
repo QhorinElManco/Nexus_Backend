@@ -36,7 +36,8 @@ public class WarehouseService(
         return Response<IReadOnlyList<WarehouseDto>>.Ok(warehouses.Select(MapToDto).ToList());
     }
 
-    public async Task<Response<WarehouseDto>> CreateAsync(CreateWarehouseDto dto, CancellationToken ct = default)
+    public async Task<Response<WarehouseDto>> CreateAsync(CreateWarehouseDto dto, long companyId,
+        CancellationToken ct = default)
     {
         var validationResult = await createValidator.ValidateAsync(dto, ct);
         if (!validationResult.IsValid)
@@ -44,19 +45,19 @@ public class WarehouseService(
             return validationResult.ToFailureResponse<WarehouseDto>();
         }
 
-        var company = await companyRepository.GetByIdAsync(dto.CompanyId, ct);
+        var company = await companyRepository.GetByIdAsync(companyId, ct);
         if (company is null)
         {
-            logger.LogWarning("Create warehouse failed: company not found [{CompanyId}]", dto.CompanyId);
+            logger.LogWarning("Create warehouse failed: company not found [{CompanyId}]", companyId);
             return Response<WarehouseDto>.Fail("Company not found", ErrorCode.NotFound);
         }
 
         var manager = await userRepository.GetByIdAsync(dto.ManagerId, ct);
-        if (manager is null || manager.CompanyId != dto.CompanyId)
+        if (manager is null || manager.CompanyId != companyId)
         {
             logger.LogWarning(
                 "Create warehouse failed: manager not found or not in company [{ManagerId}] [{CompanyId}]",
-                dto.ManagerId, dto.CompanyId);
+                dto.ManagerId, companyId);
             return Response<WarehouseDto>.Fail("Manager not found or does not belong to the company",
                 ErrorCode.NotFound);
         }
@@ -70,16 +71,16 @@ public class WarehouseService(
             return Response<WarehouseDto>.Fail("WarehouseType not found", ErrorCode.NotFound);
         }
 
-        if (await warehouseRepository.ExistsByNameAsync(dto.CompanyId, dto.Name, null, ct))
+        if (await warehouseRepository.ExistsByNameAsync(companyId, dto.Name, null, ct))
         {
-            logger.LogWarning("Create warehouse failed: name already exists [{CompanyId}] [{Name}]", dto.CompanyId,
+            logger.LogWarning("Create warehouse failed: name already exists [{CompanyId}] [{Name}]", companyId,
                 dto.Name);
             return Response<WarehouseDto>.Fail("A warehouse with this name already exists", ErrorCode.Conflict);
         }
 
         var warehouse = new Warehouse
         {
-            CompanyId = dto.CompanyId,
+            CompanyId = companyId,
             ManagerId = dto.ManagerId,
             Name = dto.Name,
             WarehouseTypeId = dto.WarehouseTypeId,
@@ -95,7 +96,7 @@ public class WarehouseService(
         return Response<WarehouseDto>.Ok(MapToDto(created), "Warehouse created successfully");
     }
 
-    public async Task<Response<WarehouseDto>> UpdateAsync(long id, UpdateWarehouseDto dto,
+    public async Task<Response<WarehouseDto>> UpdateAsync(long id, UpdateWarehouseDto dto, long companyId,
         CancellationToken ct = default)
     {
         var validationResult = await updateValidator.ValidateAsync(dto, ct);
@@ -105,13 +106,12 @@ public class WarehouseService(
         }
 
         var warehouse = await warehouseRepository.GetByIdAsync(id, ct);
-        if (warehouse is null)
+        if (warehouse is null || warehouse.CompanyId != companyId)
         {
-            logger.LogWarning("Update warehouse failed: warehouse not found [{WarehouseId}]", id);
+            logger.LogWarning("Update warehouse failed: warehouse not found [{WarehouseId}] [{CompanyId}]", id,
+                companyId);
             return Response<WarehouseDto>.Fail("Warehouse not found", ErrorCode.NotFound);
         }
-
-        var companyId = warehouse.CompanyId;
 
         if (dto.WarehouseTypeId.HasValue)
         {
@@ -161,16 +161,15 @@ public class WarehouseService(
         return Response<WarehouseDto>.Ok(MapToDto(warehouse), "Warehouse updated successfully");
     }
 
-    public async Task<Response<bool>> DeleteAsync(long id, CancellationToken ct = default)
+    public async Task<Response<bool>> DeleteAsync(long id, long companyId, CancellationToken ct = default)
     {
         var warehouse = await warehouseRepository.GetByIdAsync(id, ct);
-        if (warehouse is null)
+        if (warehouse is null || warehouse.CompanyId != companyId)
         {
-            logger.LogWarning("Delete warehouse failed: warehouse not found [{WarehouseId}]", id);
+            logger.LogWarning("Delete warehouse failed: warehouse not found [{WarehouseId}] [{CompanyId}]", id,
+                companyId);
             return Response<bool>.Fail("Warehouse not found", ErrorCode.NotFound);
         }
-
-        var companyId = warehouse.CompanyId;
 
         await warehouseRepository.DeleteAsync(id, ct);
 
@@ -185,12 +184,12 @@ public class WarehouseService(
         return new WarehouseDto(
             warehouse.Id,
             warehouse.CompanyId,
-            warehouse.Company?.Name,
+            warehouse.Company.Name,
             warehouse.ManagerId,
-            warehouse.Manager?.FullName,
+            warehouse.Manager.FullName,
             warehouse.Name,
             warehouse.WarehouseTypeId,
-            warehouse.WarehouseType?.Name,
+            warehouse.WarehouseType.Name,
             warehouse.Lat,
             warehouse.Lng,
             warehouse.CreatedAt,

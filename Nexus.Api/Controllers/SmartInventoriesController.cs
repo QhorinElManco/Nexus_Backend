@@ -9,22 +9,22 @@ namespace Nexus.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SmartInventoriesController(ISmartInventoryService smartInventoryService) : ControllerBase
+public class SmartInventoriesController(ISmartInventoryService smartInventoryService, IClaimsExtractor claimsExtractor) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "smartinventories.view")]
-    public async Task<ActionResult<Response<IReadOnlyList<SmartInventoryDto>>>> GetAll([FromQuery] long companyId,
-        CancellationToken ct = default)
+    public async Task<ActionResult<Response<IReadOnlyList<SmartInventoryDto>>>> GetAll(CancellationToken ct = default)
     {
+        var companyId = claimsExtractor.GetCurrentCompanyId();
         var result = await smartInventoryService.GetAllAsync(companyId, ct);
         return result.ToActionResult();
     }
 
     [HttpGet("{id:long}")]
     [Authorize(Policy = "smartinventories.view")]
-    public async Task<ActionResult<Response<SmartInventoryDto>>> GetById(long id, [FromQuery] long companyId,
-        CancellationToken ct = default)
+    public async Task<ActionResult<Response<SmartInventoryDto>>> GetById(long id, CancellationToken ct = default)
     {
+        var companyId = claimsExtractor.GetCurrentCompanyId();
         var result = await smartInventoryService.GetByIdAsync(id, companyId, ct);
         return result.ToActionResult();
     }
@@ -35,7 +35,9 @@ public class SmartInventoriesController(ISmartInventoryService smartInventorySer
         [FromQuery] SmartInventorySearchRequest request,
         CancellationToken ct = default)
     {
-        var result = await smartInventoryService.SearchAsync(request, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var requestWithCompany = request with { CompanyId = companyId };
+        var result = await smartInventoryService.SearchAsync(requestWithCompany, ct);
         return result.ToActionResult();
     }
 
@@ -46,7 +48,7 @@ public class SmartInventoriesController(ISmartInventoryService smartInventorySer
     {
         var result = await smartInventoryService.CreateAsync(dto, ct);
         return result.ToCreatedAtActionResult(nameof(GetById),
-            new { id = result.Data!.Id, companyId = result.Data.CompanyId });
+            new { id = result.Data!.Id });
     }
 
     [HttpPut("{id:long}")]
@@ -54,15 +56,16 @@ public class SmartInventoriesController(ISmartInventoryService smartInventorySer
     public async Task<ActionResult<Response<SmartInventoryDto>>> Update(long id,
         [FromBody] UpdateSmartInventoryDto dto, CancellationToken ct = default)
     {
-        var result = await smartInventoryService.UpdateAsync(id, dto, ct);
+        var companyId = claimsExtractor.GetCurrentCompanyId();
+        var result = await smartInventoryService.UpdateAsync(id, dto, companyId, ct);
         return result.ToActionResult();
     }
 
     [HttpDelete("{id:long}")]
     [Authorize(Policy = "smartinventories.manage")]
-    public async Task<ActionResult<Response<bool>>> Delete(long id, [FromQuery] long companyId,
-        CancellationToken ct = default)
+    public async Task<ActionResult<Response<bool>>> Delete(long id, CancellationToken ct = default)
     {
+        var companyId = claimsExtractor.GetCurrentCompanyId();
         var result = await smartInventoryService.DeleteAsync(id, companyId, ct);
         return result.ToNoContentResult();
     }
