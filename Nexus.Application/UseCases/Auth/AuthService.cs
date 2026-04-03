@@ -209,7 +209,7 @@ public class AuthService(
             user.Id,
             user.Username,
             user.FullName,
-            user.CompanyId ?? 0,  // 0 for superadmin
+            user.CompanyId ?? 0, // 0 for superadmin
             user.Company?.Name ?? (user.CompanyId == null ? "SuperAdmin" : string.Empty),
             user.IsActive,
             user.UserRoles.Select(ur => new RoleDto(ur.Role.Id, ur.Role.Name, ur.Role.Description)).ToList(),

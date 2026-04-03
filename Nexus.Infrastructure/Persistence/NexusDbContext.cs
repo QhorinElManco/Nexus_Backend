@@ -54,7 +54,7 @@ public class NexusDbContext(DbContextOptions<NexusDbContext> options, IClaimsExt
     {
         // Get current companyId from claims extractor
         long? companyId = null;
-        bool isSuperAdmin = false;
+        var isSuperAdmin = false;
 
         try
         {
@@ -124,7 +124,7 @@ public class NexusDbContext(DbContextOptions<NexusDbContext> options, IClaimsExt
             // CustomerAssignments - filter by user's company through Customer
             modelBuilder.Entity<CustomerAssignment>().HasQueryFilter(ca =>
                 claimsExtractor != null &&
-                (EF.Property<long>(ca.Customer, "CompanyId") == companyId));
+                EF.Property<long>(ca.Customer, "CompanyId") == companyId);
 
             // SmartInventory - filter through Warehouse -> Company
             modelBuilder.Entity<SmartInventory>().HasQueryFilter(si =>
