@@ -8,10 +8,11 @@ using Nexus.Application.UseCases.Categories;
 using Nexus.Application.UseCases.Companies;
 using Nexus.Application.UseCases.Customers;
 using Nexus.Application.UseCases.Products;
-using Nexus.Application.UseCases.Roles;
-using Nexus.Application.UseCases.Suppliers;
-using Nexus.Application.UseCases.Products.Warehouses;
 using Nexus.Application.UseCases.Products.SmartInventories;
+using Nexus.Application.UseCases.Products.Warehouses;
+using Nexus.Application.UseCases.Roles;
+using Nexus.Application.UseCases.Sales;
+using Nexus.Application.UseCases.Suppliers;
 using Nexus.Application.UseCases.Users;
 using Nexus.Application.UseCases.WarehouseTypes;
 
@@ -40,6 +41,10 @@ public static class DependencyInjection
         services.AddScoped<IWarehouseService, WarehouseService>();
         services.AddScoped<IWarehouseTypeService, WarehouseTypeService>();
         services.AddScoped<ISmartInventoryService, SmartInventoryService>();
+
+        // Sales services
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IPaymentService, PaymentService>();
 
         return services;
     }
