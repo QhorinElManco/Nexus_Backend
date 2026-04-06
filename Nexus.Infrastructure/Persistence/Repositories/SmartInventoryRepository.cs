@@ -130,4 +130,24 @@ public class SmartInventoryRepository(NexusDbContext context) : ISmartInventoryR
             await context.SaveChangesAsync(ct);
         }
     }
+
+    public async Task<SmartInventory?> GetStockAsync(long warehouseId, long skuId, CancellationToken ct = default)
+    {
+        return await context.SmartInventories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(si => si.WarehouseId == warehouseId && si.SkuId == skuId, ct);
+    }
+
+    public async Task<int> UpdateStockAsync(long warehouseId, long skuId, int delta, CancellationToken ct = default)
+    {
+        var now = DateTime.UtcNow;
+        var sql = """
+                  UPDATE "SmartInventories"
+                  SET "CurrentQuantity" = "CurrentQuantity" + {0}, "UpdatedAt" = {1}
+                  WHERE "WarehouseId" = {2} AND "SkuId" = {3}
+                  RETURNING "CurrentQuantity"
+                  """;
+        var result = await context.Database.ExecuteSqlRawAsync(sql, delta, now, warehouseId, skuId, ct);
+        return result;
+    }
 }

@@ -18,4 +18,7 @@ public interface ISmartInventoryRepository : IRepository<SmartInventory>
 
     public Task<bool> ExistsByWarehouseAndSkuAsync(long warehouseId, long skuId, long? excludeId = null,
         CancellationToken ct = default);
+
+    public Task<SmartInventory?> GetStockAsync(long warehouseId, long skuId, CancellationToken ct = default);
+    public Task<int> UpdateStockAsync(long warehouseId, long skuId, int delta, CancellationToken ct = default);
 }

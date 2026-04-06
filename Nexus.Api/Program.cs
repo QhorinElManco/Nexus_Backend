@@ -78,6 +78,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("deliveries.manage", p => p.RequireClaim("permission", "deliveries.manage"))
     .AddPolicy("visits.view", p => p.RequireClaim("permission", "visits.view"))
     .AddPolicy("visits.manage", p => p.RequireClaim("permission", "visits.manage"))
+    .AddPolicy("kardex.view", p => p.RequireClaim("permission", "kardex.view"))
     .AddPolicy("auth.logout", p => p.RequireAuthenticatedUser());
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();

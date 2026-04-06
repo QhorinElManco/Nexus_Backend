@@ -13,6 +13,8 @@ public class OrderService(
     IOrderDetailRepository orderDetailRepository,
     ICustomerRepository customerRepository,
     IUserRepository userRepository,
+    ISmartInventoryRepository smartInventoryRepository,
+    IKardexEntryService kardexEntryService,
     IValidator<CreateOrderDto> createValidator,
     IValidator<UpdateOrderDto> updateValidator,
     IValidator<OrderSearchRequest> searchValidator,
@@ -104,10 +106,41 @@ public class OrderService(
         }
 
         // Validate OrderType
-        if (dto.OrderType != null && !ValidOrderTypes.Contains(dto.OrderType))
+        if (!ValidOrderTypes.Contains(dto.OrderType))
         {
             return Response<OrderDto>.Fail($"Invalid OrderType. Must be one of: {string.Join(", ", ValidOrderTypes)}",
                 ErrorCode.ValidationError);
+        }
+
+        var orderType = dto.OrderType ?? "Sale";
+
+        // Pre-validation phase: check stock for Sale orders
+        if (orderType == "Sale" && dto.OrderDetails != null && dto.OrderDetails.Count > 0)
+        {
+            if (!dto.WarehouseId.HasValue)
+            {
+                return Response<OrderDto>.Fail(
+                    "WarehouseId is required for stock validation on Sale orders",
+                    ErrorCode.ValidationError);
+            }
+
+            foreach (var detail in dto.OrderDetails)
+            {
+                var stock = await smartInventoryRepository.GetStockAsync(dto.WarehouseId.Value, detail.SkuId, ct);
+                if (stock is null)
+                {
+                    return Response<OrderDto>.Fail(
+                        $"No stock record found for SKU [{detail.SkuId}] in warehouse [{dto.WarehouseId.Value}]",
+                        ErrorCode.ValidationError);
+                }
+
+                if (stock.CurrentQuantity < detail.Quantity)
+                {
+                    return Response<OrderDto>.Fail(
+                        $"Insufficient stock for SKU [{detail.SkuId}]. Requested: {detail.Quantity}, Available: {stock.CurrentQuantity}",
+                        ErrorCode.ValidationError);
+                }
+            }
         }
 
         var totalAmount = 0m;
@@ -137,7 +170,7 @@ public class OrderService(
             UserId = userId,
             VisitId = dto.VisitId,
             WarehouseId = dto.WarehouseId,
-            OrderType = dto.OrderType ?? "Sale",
+            OrderType = orderType,
             Status = dto.Status ?? "Pending",
             TotalAmount = totalAmount
         };
@@ -155,6 +188,37 @@ public class OrderService(
             foreach (var detail in orderDetails)
             {
                 await orderDetailRepository.AddAsync(detail, ct);
+            }
+        }
+
+        // Post-creation phase: create KardexEntry records for each detail
+        if (dto.OrderDetails != null && dto.OrderDetails.Count > 0 && dto.WarehouseId.HasValue)
+        {
+            // Determine transaction type based on order type
+            var transactionType = orderType == "Return" ? "Return" : "Sale";
+
+            foreach (var detail in dto.OrderDetails)
+            {
+                try
+                {
+                    await kardexEntryService.CreateEntryAsync(
+                        companyId,
+                        dto.WarehouseId.Value,
+                        detail.SkuId,
+                        userId,
+                        transactionType,
+                        detail.Quantity,
+                        "Order",
+                        created.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        ct: ct);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    logger.LogError(ex, "Failed to create KardexEntry for order [{OrderId}] detail [SKU:{SkuId}]",
+                        created.Id, detail.SkuId);
+                    // KardexEntry creation failure is logged but doesn't block order creation
+                    // This could be handled with a saga pattern in production
+                }
             }
         }
 

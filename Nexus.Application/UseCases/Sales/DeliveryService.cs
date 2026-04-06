@@ -12,12 +12,13 @@ public class DeliveryService(
     IDeliveryRepository deliveryRepository,
     IOrderRepository orderRepository,
     IUserRepository userRepository,
+    IKardexEntryService kardexEntryService,
     IValidator<CreateDeliveryDto> createValidator,
     IValidator<UpdateDeliveryDto> updateValidator,
     IValidator<DeliverySearchRequest> searchValidator,
     ILogger<DeliveryService> logger) : IDeliveryService
 {
-    private static readonly HashSet<string> ValidStatuses = ["Pending", "InTransit", "Delivered", "Failed"];
+    private static readonly HashSet<string> _validStatuses = ["Pending", "InTransit", "Delivered", "Failed"];
 
     public async Task<Response<DeliveryDto>> GetByIdAsync(long id, long companyId, CancellationToken ct = default)
     {
@@ -111,12 +112,23 @@ public class DeliveryService(
             return Response<DeliveryDto>.Fail("Delivery not found", ErrorCode.NotFound);
         }
 
+        // Check if status is transitioning to "Delivered"
+        var isTransitioningToDelivered = dto.Status == "Delivered" && delivery.Status != "Delivered";
+
         // Validate and apply updates
         if (dto.Status != null)
         {
-            if (!ValidStatuses.Contains(dto.Status))
+            if (!_validStatuses.Contains(dto.Status))
             {
-                return Response<DeliveryDto>.Fail($"Invalid Status. Must be one of: {string.Join(", ", ValidStatuses)}",
+                return Response<DeliveryDto>.Fail(
+                    $"Invalid Status. Must be one of: {string.Join(", ", _validStatuses)}",
+                    ErrorCode.ValidationError);
+            }
+
+            // Check for duplicate delivery
+            if (dto.Status == "Delivered" && delivery.Status == "Delivered")
+            {
+                return Response<DeliveryDto>.Fail("Delivery is already marked as delivered",
                     ErrorCode.ValidationError);
             }
 
@@ -144,6 +156,37 @@ public class DeliveryService(
         }
 
         await deliveryRepository.UpdateAsync(delivery, ct);
+
+        // If transitioning to Delivered, add stock and create KardexEntry records
+        if (isTransitioningToDelivered)
+        {
+            var order = await orderRepository.GetByIdWithDetailsAsync(delivery.OrderId, ct);
+            if (order is { OrderDetails.Count: > 0, WarehouseId: not null })
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    try
+                    {
+                        await kardexEntryService.CreateEntryAsync(
+                            companyId,
+                            order.WarehouseId.Value,
+                            detail.SkuId,
+                            delivery.UserId,
+                            "Purchase",
+                            detail.Quantity,
+                            "Delivery",
+                            delivery.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                            ct: ct);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        logger.LogError(ex,
+                            "Failed to create KardexEntry for delivery [{DeliveryId}] detail [SKU:{SkuId}]",
+                            delivery.Id, detail.SkuId);
+                    }
+                }
+            }
+        }
 
         var deliveryWithRelations = await deliveryRepository.GetByIdAsync(id, ct);
 

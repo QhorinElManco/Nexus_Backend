@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nexus.Infrastructure.Persistence;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Nexos.Persistence.Migrations
+namespace Nexus.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(NexusDbContext))]
-    partial class NexosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260403044134_AddCurrentQuantityToSmartInventory")]
+    partial class AddCurrentQuantityToSmartInventory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -49,6 +49,9 @@ public static class DependencyInjection
         services.AddScoped<IDeliveryService, DeliveryService>();
         services.AddScoped<IVisitService, VisitService>();
 
+        // Kardex services
+        services.AddScoped<IKardexEntryService, KardexEntryService>();
+
         return services;
     }
 }

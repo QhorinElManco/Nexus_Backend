@@ -56,6 +56,9 @@ internal static class PersistenceExtensions
         services.AddScoped<IDeliveryRepository, DeliveryRepository>();
         services.AddScoped<IVisitRepository, VisitRepository>();
 
+        // Kardex repositories
+        services.AddScoped<IKardexEntryRepository, KardexEntryRepository>();
+
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IDataSeedService, DataSeedService>();
 

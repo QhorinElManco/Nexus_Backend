@@ -9,6 +9,7 @@ public class SmartInventory : BaseEntity
     public required int ReorderPoint { get; set; }
     public required int TargetStock { get; set; }
     public required int CoverageDays { get; set; }
+    public int CurrentQuantity { get; set; }
 
     public Warehouse Warehouse { get; set; } = null!;
     public Sku Sku { get; set; } = null!;
