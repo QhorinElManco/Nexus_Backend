@@ -12,15 +12,14 @@ public class KardexEntryServiceTests
 {
     private readonly Mock<IKardexEntryRepository> _mockKardexRepo;
     private readonly Mock<ISmartInventoryRepository> _mockInventoryRepo;
-    private readonly Mock<ILogger<KardexEntryService>> _mockLogger;
     private readonly KardexEntryService _sut;
 
     public KardexEntryServiceTests()
     {
         _mockKardexRepo = new Mock<IKardexEntryRepository>();
         _mockInventoryRepo = new Mock<ISmartInventoryRepository>();
-        _mockLogger = new Mock<ILogger<KardexEntryService>>();
-        _sut = new KardexEntryService(_mockKardexRepo.Object, _mockInventoryRepo.Object, _mockLogger.Object);
+        var mockLogger = new Mock<ILogger<KardexEntryService>>();
+        _sut = new KardexEntryService(_mockKardexRepo.Object, _mockInventoryRepo.Object, mockLogger.Object);
     }
 
     private static KardexEntry CreateKardexEntry(long id = 1, long companyId = 100, long warehouseId = 1,

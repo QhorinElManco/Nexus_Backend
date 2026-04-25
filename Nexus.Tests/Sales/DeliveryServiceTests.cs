@@ -6,7 +6,6 @@ using Nexus.Application.Dto.Sales;
 using Nexus.Application.Interfaces.Repositories;
 using Nexus.Application.Interfaces.UseCases;
 using Nexus.Application.UseCases.Sales;
-using Nexus.Domain.Entities.Products;
 using Nexus.Domain.Entities.Sales;
 using Nexus.Domain.Entities.Security;
 
@@ -16,42 +15,37 @@ public class DeliveryServiceTests
 {
     private readonly Mock<IDeliveryRepository> _mockDeliveryRepo;
     private readonly Mock<IOrderRepository> _mockOrderRepo;
-    private readonly Mock<IUserRepository> _mockUserRepo;
     private readonly Mock<IKardexEntryService> _mockKardexService;
-    private readonly Mock<IValidator<CreateDeliveryDto>> _mockCreateValidator;
-    private readonly Mock<IValidator<UpdateDeliveryDto>> _mockUpdateValidator;
-    private readonly Mock<IValidator<DeliverySearchRequest>> _mockSearchValidator;
-    private readonly Mock<ILogger<DeliveryService>> _mockLogger;
     private readonly DeliveryService _sut;
 
     public DeliveryServiceTests()
     {
         _mockDeliveryRepo = new Mock<IDeliveryRepository>();
         _mockOrderRepo = new Mock<IOrderRepository>();
-        _mockUserRepo = new Mock<IUserRepository>();
+        var mockUserRepo = new Mock<IUserRepository>();
         _mockKardexService = new Mock<IKardexEntryService>();
-        _mockCreateValidator = new Mock<IValidator<CreateDeliveryDto>>();
-        _mockUpdateValidator = new Mock<IValidator<UpdateDeliveryDto>>();
-        _mockSearchValidator = new Mock<IValidator<DeliverySearchRequest>>();
-        _mockLogger = new Mock<ILogger<DeliveryService>>();
+        var mockCreateValidator = new Mock<IValidator<CreateDeliveryDto>>();
+        var mockUpdateValidator = new Mock<IValidator<UpdateDeliveryDto>>();
+        var mockSearchValidator = new Mock<IValidator<DeliverySearchRequest>>();
+        var mockLogger = new Mock<ILogger<DeliveryService>>();
 
-        _mockCreateValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateDeliveryDto>(), It.IsAny<CancellationToken>()))
+        mockCreateValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateDeliveryDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _mockUpdateValidator.Setup(v => v.ValidateAsync(It.IsAny<UpdateDeliveryDto>(), It.IsAny<CancellationToken>()))
+        mockUpdateValidator.Setup(v => v.ValidateAsync(It.IsAny<UpdateDeliveryDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _mockSearchValidator
+        mockSearchValidator
             .Setup(v => v.ValidateAsync(It.IsAny<DeliverySearchRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
         _sut = new DeliveryService(
             _mockDeliveryRepo.Object,
             _mockOrderRepo.Object,
-            _mockUserRepo.Object,
+            mockUserRepo.Object,
             _mockKardexService.Object,
-            _mockCreateValidator.Object,
-            _mockUpdateValidator.Object,
-            _mockSearchValidator.Object,
-            _mockLogger.Object);
+            mockCreateValidator.Object,
+            mockUpdateValidator.Object,
+            mockSearchValidator.Object,
+            mockLogger.Object);
     }
 
     private static Delivery CreateDelivery(long id = 1, long companyId = 100, long orderId = 10,
@@ -110,6 +104,15 @@ public class DeliveryServiceTests
 
     #region UpdateAsync - Delivery to Delivered
 
+    /// <summary>
+    /// Tests the behavior of the <c>UpdateAsync</c> method when transitioning a delivery status to "Delivered".
+    /// Ensures that stock is added and corresponding Kardex entries are created for the delivered items.
+    /// </summary>
+    /// <returns>
+    /// A task representing the asynchronous test operation. Asserts that:
+    /// - The operation succeeds and updates the delivery status to "Delivered".
+    /// - Kardex entries are created for the stock adjustments associated with the delivery.
+    /// </returns>
     [Fact]
     public async Task UpdateAsync_TransitioningToDelivered_AddsStockAndCreatesKardexEntries()
     {
@@ -120,8 +123,8 @@ public class DeliveryServiceTests
         const long userId = 5;
         const long warehouseId = 1;
 
-        var delivery = CreateDelivery(deliveryId, companyId, orderId, userId, "InTransit");
-        var order = CreateOrderWithDetails(orderId, companyId, warehouseId);
+        var delivery = CreateDelivery();
+        var order = CreateOrderWithDetails();
 
         _mockDeliveryRepo.Setup(r => r.GetByIdAsync(deliveryId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(delivery);
@@ -148,6 +151,15 @@ public class DeliveryServiceTests
             Times.Once);
     }
 
+    /// <summary>
+    /// Tests the behavior of the <c>UpdateAsync</c> method when attempting to update the status of a delivery
+    /// that is already marked as "Delivered". Ensures that a validation error is returned and no Kardex entries are created.
+    /// </summary>
+    /// <returns>
+    /// A task representing the asynchronous test operation. Asserts that:
+    /// - The operation fails and returns a validation error indicating the delivery is already delivered.
+    /// - No Kardex entries are created due to the existing "Delivered" status.
+    /// </returns>
     [Fact]
     public async Task UpdateAsync_AlreadyDelivered_ReturnsValidationError()
     {

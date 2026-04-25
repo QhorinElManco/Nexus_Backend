@@ -16,48 +16,43 @@ namespace Nexus.Tests.Sales;
 public class OrderServiceTests
 {
     private readonly Mock<IOrderRepository> _mockOrderRepo;
-    private readonly Mock<IOrderDetailRepository> _mockOrderDetailRepo;
     private readonly Mock<ICustomerRepository> _mockCustomerRepo;
     private readonly Mock<IUserRepository> _mockUserRepo;
     private readonly Mock<ISmartInventoryRepository> _mockInventoryRepo;
     private readonly Mock<IKardexEntryService> _mockKardexService;
-    private readonly Mock<IValidator<CreateOrderDto>> _mockCreateValidator;
-    private readonly Mock<IValidator<UpdateOrderDto>> _mockUpdateValidator;
-    private readonly Mock<IValidator<OrderSearchRequest>> _mockSearchValidator;
-    private readonly Mock<ILogger<OrderService>> _mockLogger;
     private readonly OrderService _sut;
 
     public OrderServiceTests()
     {
         _mockOrderRepo = new Mock<IOrderRepository>();
-        _mockOrderDetailRepo = new Mock<IOrderDetailRepository>();
+        var mockOrderDetailRepo = new Mock<IOrderDetailRepository>();
         _mockCustomerRepo = new Mock<ICustomerRepository>();
         _mockUserRepo = new Mock<IUserRepository>();
         _mockInventoryRepo = new Mock<ISmartInventoryRepository>();
         _mockKardexService = new Mock<IKardexEntryService>();
-        _mockCreateValidator = new Mock<IValidator<CreateOrderDto>>();
-        _mockUpdateValidator = new Mock<IValidator<UpdateOrderDto>>();
-        _mockSearchValidator = new Mock<IValidator<OrderSearchRequest>>();
-        _mockLogger = new Mock<ILogger<OrderService>>();
+        var mockCreateValidator = new Mock<IValidator<CreateOrderDto>>();
+        var mockUpdateValidator = new Mock<IValidator<UpdateOrderDto>>();
+        var mockSearchValidator = new Mock<IValidator<OrderSearchRequest>>();
+        var mockLogger = new Mock<ILogger<OrderService>>();
 
-        _mockCreateValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateOrderDto>(), It.IsAny<CancellationToken>()))
+        mockCreateValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateOrderDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _mockUpdateValidator.Setup(v => v.ValidateAsync(It.IsAny<UpdateOrderDto>(), It.IsAny<CancellationToken>()))
+        mockUpdateValidator.Setup(v => v.ValidateAsync(It.IsAny<UpdateOrderDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _mockSearchValidator.Setup(v => v.ValidateAsync(It.IsAny<OrderSearchRequest>(), It.IsAny<CancellationToken>()))
+        mockSearchValidator.Setup(v => v.ValidateAsync(It.IsAny<OrderSearchRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
         _sut = new OrderService(
             _mockOrderRepo.Object,
-            _mockOrderDetailRepo.Object,
+            mockOrderDetailRepo.Object,
             _mockCustomerRepo.Object,
             _mockUserRepo.Object,
             _mockInventoryRepo.Object,
             _mockKardexService.Object,
-            _mockCreateValidator.Object,
-            _mockUpdateValidator.Object,
-            _mockSearchValidator.Object,
-            _mockLogger.Object);
+            mockCreateValidator.Object,
+            mockUpdateValidator.Object,
+            mockSearchValidator.Object,
+            mockLogger.Object);
     }
 
     private static Customer CreateCustomer(long id = 10, long companyId = 100)
